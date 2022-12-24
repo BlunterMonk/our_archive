@@ -1,0 +1,13 @@
+[bg - prison_night - none]
+[mika - 00 - none]
+....Goodbye?
+[mika - 03 - move_left]
+....Moving to the left?
+[seia - 00 - move_right]
+....mika?
+[mika - 05 - _]
+Oh.... you're approaching me?
+[seia - 01 - _]
+I can't kiss the shit out of you unless I get closer
+[mika - 03 - _]
+Hoho... then... come as close as you'd like!

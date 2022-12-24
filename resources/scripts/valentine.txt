@@ -1,0 +1,200 @@
+[bg - black_screen - none]
+[none - _ - none]
+(I decided to pay a certain caged princess a visit)
+[clear - _ - _]
+[sensei - _ - none]
+(Knock on the door)
+[mika - _ - none]
+....Who's there? 
+[sensei - _ - none]
+(Enter)
+[clear - _ - _]
+[bg - prison_night - none]
+[mika - 00 - none]
+......
+[mika - 12 - none]
+Huh...? Sensei!?
+[mika - 02 - none]
+What are you doing here...!?
+[sensei - 00 - none]
+"No one should be alone on a day like this."
+[mika - 13 - none]
+A day like this...?
+[mika - 06 - none]
+Oh that's right... today is Valentine's Day isn't it?
+[mika - 02 - none]
+So you came all the way here just for that? 
+[mika - 02 - none]
+That's just like you Sensei, a girl might just fall for you.
+[mika - 01 - none]
+But...
+[mika - 00 - none]
+......
+[mika - 08 - none]
+Sorry to disappoint you Sensei, I can't give you chocolate stuck in here.
+[sensei - 00 - none]
+"I'm not here for chocolates"
+[sensei - 00 - none]
+"I'm here for you, Mika!"
+[mika - 04 - none]
+?!
+[mika - 15 - none]
+My my... what a smooth talker.
+[mika - 14 - none]
+Well... thanks, Sensei.
+[sensei - 00 - none]
+"That being said...."
+[sensei - 00 - none]
+(Pull out the gift)
+[mika - 09 - none]
+Huh...? Is that....?
+[sensei - 00 - none]
+"I got you a little something instead."
+[mika - 09 - none]
+Valentine's chocolate....
+[mika - 10 - none]
+Haha, it's shaped like a cakeroll... Sensei do you enjoy teasing me?
+[sensei - 00 - none]
+"It was the only way to get it approved"
+[mika - 10 - none]
+Hahaha! That must be because of Nagi-chan... 
+[mika - 15 - none]
+Still... thanks... Sensei.
+[mika - 15 - none]
+That's really sweet of you...
+[mika - 23 - none]
+But, you know what it means to give chocolate on Valentine's.... don't you...?
+[sensei - 00 - none]
+"Of course I do, I even made it myself!"
+[mika - 11 - none]
+!?
+[mika - 11 - none]
+.....
+[mika - 22 - none]
+Sensei....
+[sensei - 00 - none]
+"You're very precious to me Mika."
+[mika - 15 - none]
+Honestly I wasn't expecting that
+[mika - 14 - none]
+You got me Sensei...
+[mika - 03 - none]
+This is.....
+[mika - 10 - none]
+Haha~ look at me, I can't stop smiling...
+[mika - 15 - none]
+Sensei, I don't know what I'd do without you...
+[mika - 14 - none]
+It's really late but... would you mind keeping me company a while?
+[sensei - 00 - none]
+"I'll be here as long as you want."
+[mika - 15 - none]
+Careful Sensei, I just might keep you forever~!
+[mika - 03 - none]
+Here... I can at least make some tea.
+[mika - 02 - none]
+Then we can share that "cakeroll" you got me~
+[clear - _ - _]
+[bg - black_screen - _]
+[none - _ - none]
+(Then, Mika and I enjoyed the tea and chocolate together, and spent all night chatting.)
+[clear - _ - _]
+[bg - prison_night - _]
+[mika - 02 - none]
+Wait that makes no sense
+[mika - 04 - none]
+You're telling me you fought a giant snake in the desert?
+[sensei - 00 - none]
+"It was pretty scary but everyone worked hard"
+[mika - 10 - none]
+Wow... How do you have a giant snake and still lose, talk about embarrassing
+[mika - 15 - none]
+Though .... 
+[mika - 14 - none]
+I don't know if I could handle a giant snake
+[mika - 07 - none]
+They're kinda icky
+[bg - prison_night2 - none]
+[mika - 06 - none]
+I'd really like to visit the beach when summer comes around...
+[mika - 08 - none]
+Though... I don't see tha-
+[sensei - 00 - none]
+"You deserve it, Let's go!"
+[mika - 11 - none]
+So quick....!
+[mika - 14 - none]
+Well, Yeah...
+[mika - 15 - none]
+If possible I'd love to go with you
+[mika - 15 - none]
+Question is.....
+[mika - 03 - none]
+What should I wear, Sensei...?
+[mika - 02 - none]
+Would you prefer a white one piece ? Maybe a black bikini...?
+[mika - 10 - none]
+Just ki-
+[sensei - 00 - none]
+"Who needs a swImsuit anyway?"
+[mika - 11 - none]
+...!? 
+[mika - 10 - none]
+Gosh sensei, You pervert!!
+[bg - prison2_day - none]
+[mika - 10 - none]
+I couldn't believe someone would wear a blouse with shorts!!
+[mika - 05 - none]
+It was silly but somehow... I got a little curious.
+[sensei - 00 - none]
+"I'm sure you could pull that off!"
+[mika - 03 - none]
+You think so...?
+[mika - 15 - none]
+Maybe It would Work With some good accessories
+[sensei - 00 - none]
+"We can go shopping some day, Let's Find some new ones"
+[mika - 23 - none]
+Oh are you a fashion expert now sensei?
+[sensei - 00 - none]
+"I may not look it but I have a good eye for fashion"
+[mika - 10 - none]
+No way! I'd love to see your flashy side haha!
+[mika - 03 - none]
+Let's do that someday
+[mika - 02 - none]
+Oh damn, it's already morning....
+[mika - 03 - none]
+I guess we lost track of time!
+[mika - 03 - none]
+Don't you have Schale duties to attend to?
+[sensei - 00 - none]
+"Ugh, do I have to....."
+[mika - 10 - none]
+Don't be a baby Sensei...
+[mika - 15 - none]
+I'm really happy you spent time with me, but you should get going.
+[sensei - 00 - none]
+"I'll come see you again another time, wait for me"
+[mika - 10 - none]
+...Haha~ I'll look forward to it~
+[mika - 03 - none]
+Now go on, get that bread
+[mika - 03 - none]
+Oh, and be careful on your way out... 
+[mika - 15 - none]
+If someone see's you leaving my room early in the morning...
+[mika - 10 - none]
+They just might get the wrong idea, heh~
+[sensei - 00 - none]
+"I wouldn't mind"
+[mika - 22 - none]
+!?.... Geez Sensei, have you no shame?
+[mika - 10 - none]
+Well.... I guess that's what I love about you
+[mika - 15 - none]
+Have a great day..... my prince~
+[clear - _ - _]
+[bg - black_screen - _]
+[none - _ - none]
+(I returned to Schale without a wink of sleep, but somehow full of energy)
