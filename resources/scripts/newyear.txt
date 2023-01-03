@@ -1,0 +1,408 @@
+[bg - trinity_campus - none]
+[_ - _ - none]
+(Mika called me early in the morning to meet her, it sounded pretty urgent.)
+[clear - _ - _]
+[mika - 07 - move_center]
+SEEEEEENSEEEEEEI!!!!!
+[mika - 11 - _]
+I need your help!!!
+[sensei - _ - none]
+"What's wrong!?"
+[mika - 02 - none]
+Well you see.... it's almost time for new years right?
+[mika - 00 - none]
+I really want to use this chance to show my thanks to Seia-chan!
+[mika - 05 - none]
+She's done so much for me and I...
+[mika - 02 - none]
+I feel like I have to do something!
+[mika - 03 - none]
+She's been so kind to me, even after all I did....
+[mika - 14 - none]
+And she's been through a lot, I want to make it up to her.
+[mika - 02 - none]
+And so... I want you to help me throw a new years party!
+[sensei - _ - none]
+"Naruhodo, that sounds like a great idea"
+[mika - 09 - none]
+And so I need you to help me gather supplies
+[mika - 03 - none]
+And most importantly, a gift!
+[sensei - _ - none]
+"A gift huh, any ideas?"
+[mika - 07 - _]
+That's the problem...!
+[mika - 08 - none]
+I have no idea what she could want....
+[mika - 06 - none]
+I think she likes books... she's always spouting some complicated mumbo jumbo...
+[mika - 10 - none]
+But who would want books as a gift, that's so boring!
+[mika - 05 - none]
+Maybe some new clothes?
+[mika - 02 - none]
+Her sleeves don't fit at all right?
+[sensei - _ - none]
+"Eh? Isn't that just fashion...?"
+[mika - 06 - none]
+....hmmmmm
+[sensei - _ - none]
+"What about a new gun or something?"
+[mika - 10 - none]
+Hahaha I can't remember the last time I saw her shoot!
+[mika - 02 - _]
+Come to think of it, what kind of gun does she have anyway....
+[mika - 03 - _]
+You can do it Sensei!
+[mika - 03 - none]
+Just think about something a teenage girl would love to have.
+[sensei - _ - none]
+"....How about we shop around for now?"
+[none - _ - none]
+[sensei - _ - none]
+"Maybe something will pop out?"
+[mika - 07 - none]
+Stumped already?!
+[mika - 05 - none]
+Well so am I, so that sounds good to me!!
+[mika - 10 - none]
+Let'sa gooooo!
+[clear - _ - _]
+[bg - trinity_street_xmas - _]
+[mika - 02 - enter_left]
+Ok, where to first....
+[mika - 03 - none]
+Oh! Look there's a bakery!
+[mika - 03 - exit_right]
+[clear - _ - _]
+[none - _ - _]
+[bg - cafe - _]
+[none - _ - _]
+[mika - 00 - enter_left]
+[shopkeep - _ - _]
+Welcome!!
+[shopkeep - _ - _]
+Everything is on sale right now! We're also holding a BOGO for couples!!
+[sensei - _ - _]
+"Hear that, FREE cake!!"
+[mika - 10 - _]
+Oh please, do you want me to call you "honey" now?
+[mika - 03 - _]
+We got a mission here Sensei!
+[sensei - _ - _]
+"Ok ok, uh, would Seia like a cake?"
+[mika - 02 - _]
+I can't think of a single person in Kivotos that doesn't love cake!
+[mika - 03 - _]
+Plus they're nice and fresh!!
+[mika - 05 - _]
+One time we were having tea like usual
+[mika - 02 - _]
+And she got really excited when I gave her my strawberry cheesecake...
+[mika - 03 - _]
+It was pretty cute not gonna lie...
+[mika - 01 - _]
+hmmm.... let's see.....
+[mika - 02 - move_left]
+Sensei look!
+[mika - 03 - _]
+This one has little gingerbreadmen on it!
+[mika - 10 - _]
+I love it! That one's blonde too haha!
+[mika - 03 - _]
+We should grab this one don't you think?
+[sensei - _ - _]
+"Why stop there, it's buy one get one!"
+[mika - 10 - _]
+Sensei don't be a pig, come on let's go!
+[shopkeep - _ - _]
+Thank you so much!
+[shopkeep - _ - _]
+Enjoy!! And happy new year!!
+[mika - 03 - _]
+Cyaaaa!
+[mika - 03 - exit_right]
+[clear - _ - _]
+[mika - 08 - move_center]
+[clear - _ - _]
+[bg - trinity_street_xmas - _]
+[mika - 06 - _]
+...hmmm......
+[sensei - _ - _]
+"...Mika?"
+[mika - 05 - _]
+We got a nice cute cake but...
+[mika - 06 - _]
+This doesn't really feel like enough.....
+[sensei - _ - _]
+"Well let's walk a bit more shall we?"
+[mika - 03 - _]
+Yeah....
+[mika - 07 - _]
+Sheesh! it's so freaking cold!
+[sensei - _ - _]
+"Here, stay close to me, we can share my coat"
+[mika - 02 - _]
+Thanks Sensei...
+[mika - 03 - _]
+You're like a walking heater, why are you so warm?!
+[sensei - _ - _]
+"Uhh... y'know... physics..."
+[mika - 10 - _]
+Yeah sure haha!
+[mika - 03 - _]
+Well it works out for me so, let's keep going.
+[clear - _ - _]
+[bg - festival_road_night - _]
+[mika - 02 - _]
+Let's see.... what's there to buy....
+[sensei - _ - _]
+"What about some Peroro merch?"
+[mika - 00 - _]
+mmmm....... she's not that simple...
+[mika - 15 - _]
+Seia is often stressing about this and that
+[mika - 05 - _]
+And her body is so weak she can hardly handle it.
+[mika - 15 - _]
+Maybe something that would help her relax?
+[mika - 02 - _]
+Like a spa trip!
+[sensei - _ - _]
+"That sounds nice"
+[mika - 03 - _]
+They are! You gotta try it!
+[mika - 05 - _]
+But with how she is, I wonder if she'd agree to go?
+[sensei - _ - _]
+"Won't know until you try right?"
+[mika - 10 - _]
+So true bestie!
+[clear - _ - _]
+[mika - 09 - _]
+What's all that commotion about?
+[mika - 02 - _]
+Let's go check it out!
+[clear - _ - _]
+[bg - christmas_square - _]
+[mika - 03 - _]
+Wow look at that tree! 
+[mika - 02 - _]
+It's really pretty...
+[mika - 23 - _]
+....your next line will be 'not as pretty as you'....
+[sensei - _ - _]
+"!?"
+[mika - 10 - _]
+Haha you're gonna have to try harder than that Sensei...!
+[loud_man - _ - _]
+Come one, come all! 
+[loud_man - _ - _]
+Celebrate the new year here in town square!
+[loud_man - _ - _]
+We've got gifts, food, games, food games, anything you want!
+[mika - 09 - _]
+Oh wow...
+[mika - 02 - _]
+Looks like a festival out here!
+[sensei - _ - _]
+"Wanna check it out? Could be fun."
+[mika - 03 - _]
+Yeah! And we might find something for Seia-chan!
+[clear - _ - _]
+[bg - black_screen - _]
+[_ - _ - _]
+(And so, Mika and I toured the festival for a while.)
+[bg - festival_night - _]
+[mika - 01 - _]
+[none - _ - _]
+[hammer_booth_man - _ - _]
+You there! Yes you, the teacher looking fella!
+[hammer_booth_man - _ - _]
+Come try your hand at the Hammer Down challenge!
+[hammer_booth_man - _ - _]
+You could win this exclusive New Years Peroro hairpin for your lovely lady!
+[sensei - _ - _]
+"Challenge accepted!"
+[mika - 10 - _]
+Wooo~! Go Sensei~!
+[sensei - _ - _]
+(Smash that button with all your might!)
+[none - _ - _]
+[hammer_booth_man - _ - _]
+Aww! So close! Good try though!
+[sensei - _ - _]
+"I can't do it... I'm not... strong enough..."
+[mika - 10 - _]
+You're still incredible Sensei!
+[mika - 09 - _]
+Can I try?
+[hammer_booth_man - _ - _]
+Uh, sure! Here do your best!
+[mika - 10 - _]
+Ok! Here I go!
+[none - _ - _]
+[mika - 06 - _]
+[none - _ - _]
+[mika - 10 - _]
+HIYAAAAA~!
+[none - _ - _]
+[mika - 04 - _]
+Oops...
+[hammer_booth_man - _ - _]
+Wha- what strength......
+[hammer_booth_man - _ - _]
+You completely destroyed the machine...
+[sensei - _ - _]
+"I'm sorry! I'm sorry! I'm sorry!!!"
+[hammer_booth_man - _ - _]
+Well we have a winner!!!
+[hammer_booth_man - _ - _]
+Here's your prize miss, the super limited edition New Years Peroro Hairpin!!!
+[mika - 10 - _]
+Sensei!! Look I won!!!
+[sensei - _ - _]
+"...you sure did"
+[none - _ - _]
+[sensei - _ - _]
+"Should be almost time..."
+[mika - 04 - _]
+Already!?
+[mika - 08 - _]
+But, I got so distracted with the festival...
+[mika - 08 - _]
+Ugh... what do I do...
+[mika - 15 - _]
+I can't believe the year is already over!
+[sensei - _ - _]
+"Uhm it's-"
+[mika - 02 - _]
+We were supposed to find a gift for Seia-chan
+[mika - 06 - _]
+And I would have surprised her with the whole thing
+[mika - 07 - _]
+But I completely messed it up!
+[mika - 01 - _]
+That does it, when the new year comes I'm setting new goals!
+[mika - 05 - _]
+I want to be more attentive, more proactive...
+[mika - 02 - _]
+I know I often get caught up in my own thing...
+[sensei - _ - _]
+"Mika--"
+[mika - 15 - _]
+I want to see things for what they are
+[mika - 15 - _]
+And be aware of what's happening...
+[mika - 07 - _]
+Plus there's a lot of things I regretted this year...
+[mika - 08 - _]
+...and I couldn't find Seia-chan anything worthwhile
+[clear - _ - _]
+[??? - _ - _]
+Maybe you should start now then.
+[mika - 04 - _]
+Wha-
+[seia - 00 - move_right_async]
+[mika - 11 - move_left_async]
+Seia-chan?
+[seia - 02 - _]
+It's not even time yet...
+[mika - 17 - _]
+[seia - 04 - _]
+I heard what was going on-----
+[mika - 10 - move_right]
+SEIA-CHAAAAAN~
+[clear - _ - _]
+[bg - hug - _]
+[seia - _ - _]
+Hey! What are you...
+[mika - _ - _]
+Seia-chan!! I'm so glad you're here!!!!
+[mika - _ - _]
+How did you know?
+[mika - _ - _]
+Did you read my mind or something!?
+[seia - _ - _]
+No!
+[seia - _ - _]
+Ugh...
+[seia - _ - _]
+Come on, put me down already!
+[clear - _ - _]
+[bg - festival_night - _]
+[seia - 00 - move_right]
+[mika - 10 - move_left]
+I thought I would mess this up again!
+[mika - 15 - _]
+Why are you here?
+[seia - 06 - _]
+*sigh* ...well you might have.
+[seia - 02 - _]
+But lucky for you, Sensei texted me.
+[seia - 04 - _]
+Knowing you I figured it'd be best to not wait.
+[mika - 10 - _]
+Wow! Sensei you're amazing!
+[mika - 15 - _]
+Well, Seia-chan...
+[mika - 02 - _]
+I wanted to use this new years as a way to show you my thanks.
+[mika - 03 - _]
+For all the help you've given me..
+[mika - 15 - _]
+Even if you are annoying when you do it...
+[mika - 03 - _]
+I'm really glad to have you as a friend!
+[seia - 06 - _]
+Geez when did you become so sappy.
+[seia - 02 - _]
+.....well
+[seia - 03 - _]
+I'm glad too.
+[mika - 10 - _]
+Oh yeah!! I got you this gift it's a uh...
+[mika - 15 - _]
+Super limited edition... New Years Peroro hairpin....
+[seia - 08 - _]
+Well well, it's something... 
+[clear - _ - _]
+[seia - 02 - _]
+How does it look?
+[mika - 10 - _]
+Haha you look like a little kid!
+[mika - 03 - _]
+But I love it, you look great!
+[seia - 06 - _]
+Thanks....
+[seia - 03 - _]
+I'll hang on to it then...
+[sensei - _ - _]
+"Isn't that great Mika"
+[mika - 10 - _]
+Wonderful!!
+[mika - 15 - _]
+Thank you, Sensei, just when I think you've done too much you do even more.
+[sensei - _ - _]
+"Just doing my part is all"
+[clear - _ - _]
+[sensei - _ - _]
+"Now how about we enjoy the ONE cake we brought?"
+[seia - 05 - _]
+hm...?
+[mika - 10 - _]
+GEEZ! Will you let that go!
+[clear - _ - _]
+[bg - black_screen - _]
+[_ - _ - _]
+(And so, Mika, Seia, and I enjoyed some cake while counting down to new years.)
+[_ - _ - _]
+(And spent the rest of the night enjoying the festival.)
+[sensei - _ - _]
+"3....?"
+[mika - _ - _]
+2...
+[seia - _ - _]
+1...
+[everyone - _ - _]
+HAPPY NEW YEAR!!!!!!
