@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ScriptMarkerRegexFormat = `^\[([a-zA-Z0-9]+)\s-\s([a-z0-9_]+)\s-\s([_a-z0-9]+)\]$`
+	ScriptMarkerRegexFormat = `^\[([?a-zA-Z0-9_]+)\s-\s([a-z0-9_]+)\s-\s([_a-z0-9]+)\]$`
 
 	// format: [subject - category - action]
 	// ScriptMarkerRegexFormat = `^\[([a-zA-Z0-9]+)\s-\s([a-z0-9]+)\s-\s([a-z]+)\]$`
