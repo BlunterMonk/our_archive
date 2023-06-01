@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
@@ -18,9 +16,7 @@ import (
 	"github.com/BlunterMonk/opengl/internal/hud"
 	"github.com/BlunterMonk/opengl/internal/script"
 	"github.com/BlunterMonk/opengl/pkg/gfx"
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/mp3"
-	"github.com/faiface/beep/speaker"
+	"github.com/BlunterMonk/opengl/pkg/sfx"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
@@ -46,7 +42,7 @@ var (
 	bg, fade            *hud.Sprite
 	charSprite          map[string]*hud.Sprite
 	Actors, Backgrounds map[string]*hud.Sprite
-	Sounds              map[string]*Streamer
+	Sounds              map[string]*sfx.Streamer
 	Names               map[string]*hud.Text
 
 	shuttingDown         bool
@@ -57,7 +53,7 @@ var (
 )
 
 const (
-	CURRENT_SCRIPT = "newyear-mid"
+	CURRENT_SCRIPT = "newyear"
 
 	XCODE_SHUTDOWN_SIGNAL = 0
 	XCODE_CONSUMER_FAILED = 4
@@ -69,48 +65,9 @@ const (
 )
 
 type eventFunc func(s *hud.Text)
-type Streamer struct {
-	beep.StreamSeekCloser
-
-	data   []byte
-	format beep.Format
-}
-
-func (s *Streamer) Play() {
-	speaker.Init(s.format.SampleRate, s.format.SampleRate.N(time.Second/10))
-	speaker.Play(s)
-}
-func (s *Streamer) Release() {
-	s.Close()
-}
 
 func ThemeFilePath(n string) string {
 	return fmt.Sprintf("./resources/bgm/Theme_%s.mp3", n)
-}
-func NewStreamer(filename string) *Streamer {
-
-	f, err := os.Open(filename)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-
-	body, err := ioutil.ReadAll(f)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	buff := ioutil.NopCloser(bytes.NewBuffer(body))
-	streamer, format, err := mp3.Decode(buff)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return &Streamer{
-		StreamSeekCloser: streamer,
-		data:             body,
-		format:           format,
-	}
 }
 
 // in Open GL, Y starts at the bottom
@@ -176,7 +133,7 @@ func main() {
 	charSprite = make(map[string]*hud.Sprite)
 	Actors = make(map[string]*hud.Sprite)
 	Names = make(map[string]*hud.Text)
-	Sounds = make(map[string]*Streamer)
+	Sounds = make(map[string]*sfx.Streamer)
 	Backgrounds = make(map[string]*hud.Sprite)
 	for _, v := range Script.Elements() {
 		// create names if they don't exist
@@ -203,7 +160,7 @@ func main() {
 			Actors[v.Name].LoadTexture(key, fmt.Sprintf("./resources/bg/%s.jpeg", v.Mood))
 		case "bgm":
 			fmt.Println("loaded bgm:", v.Mood)
-			Sounds[v.Mood] = NewStreamer(ThemeFilePath(v.Mood))
+			Sounds[v.Mood] = sfx.NewStreamer(ThemeFilePath(v.Mood))
 		default:
 			Actors[v.Name].LoadTexture(key, fmt.Sprintf("./resources/actor/%s/%s-%s.png", v.Name, v.Name, v.Mood))
 		}
@@ -218,6 +175,10 @@ func main() {
 			Actors[v.Name].SetScale(0.8)
 		}
 	}
+
+	// load system sounds
+	nextSound := sfx.NewStreamer("./resources/audio/chat.mp3")
+	sfx.Init(nextSound)
 
 	dialogue = hud.NewText(Script.Get(0).Line, hud.COLOR_WHITE, font)
 	dialogue.SetScale(0.85)
@@ -237,24 +198,6 @@ func main() {
 	mikaName2.SetScale(0.85)
 
 	gl.BlendColor(1, 1, 1, 1)
-	/*
-		f, err := os.Open("./resources/bgm/Theme_52.mp3")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		streamer, format, err := mp3.Decode(f)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer streamer.Close()
-
-		speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
-
-		done := make(chan bool)
-		speaker.Play(beep.Seq(streamer, beep.Callback(func() {
-			done <- true
-		})))*/
 
 	var delay time.Timer
 F:
@@ -285,6 +228,7 @@ F:
 			}
 		case <-delay.C:
 			if dialogue != nil && dialogue.Done() {
+				nextSound.Play()
 				nextDialogue(&status)
 			}
 
@@ -421,6 +365,7 @@ func nextDialogue(status *chan uint32) {
 		if s, ok := Sounds[element.Mood]; ok {
 			fmt.Println("playing sound:", element.Mood)
 			s.Play()
+			nextDialogue(status)
 		}
 		break
 	case "fade":

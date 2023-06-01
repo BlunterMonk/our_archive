@@ -1,4 +1,5 @@
 [bg - trinity_campus - none]
+[bgm - 54 - none]
 [_ - _ - none]
 (Mika called me early in the morning to meet her, it sounded pretty urgent.)
 [clear - _ - _]
