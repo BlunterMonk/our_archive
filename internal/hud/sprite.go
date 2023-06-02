@@ -50,6 +50,7 @@ type vec3 v3.T
 func (v *vec3) X() float32 { return v[0] }
 func (v *vec3) Y() float32 { return v[1] }
 func (v *vec3) Z() float32 { return v[2] }
+func (v *vec3) ToV3() v3.T { return v3.T{v.X(), v.Y(), v.Z()} }
 
 type Sprite struct {
 	vbo          uint32       // pointer to vertex buffer
@@ -60,6 +61,7 @@ type Sprite struct {
 	scale        float32
 	overlayColor vec3
 	position     vec3
+	center       vec3 // used as the "default position" when reseting the sprite's position
 }
 
 func NewSprite() *Sprite {
@@ -137,9 +139,21 @@ func (s *Sprite) SetAlpha(a float32) {
 func (s *Sprite) SetScale(n float32) {
 	s.scale = n
 }
+func (s *Sprite) GetScale() float32 {
+	return s.scale
+}
+
+func (s *Sprite) SetCenter(x, y, scale float32) {
+	s.position = vec3{x, y, 0}
+	s.scale = scale
+}
 
 func (s *Sprite) SetPositionf(x, y, z float32) {
 	s.position = vec3{x, y, z}
+}
+
+func (s *Sprite) SetPosition(p mgl32.Vec3) {
+	s.position = vec3{p.X(), p.Y(), p.Z()}
 }
 
 func (s *Sprite) GetPosition() mgl32.Vec3 {
@@ -219,7 +233,8 @@ func (s *Sprite) GetTransform() mat4.T {
 	// apply projection to 2D
 	out = *m.AssignMul(&out, &prj)
 	// screen space translations need to be normalized
-	out = *m.Translate(&v3.T{s.position.X(), s.position.Y(), s.position.Z()})
+	position := s.position.ToV3()
+	out = *m.Translate(&position)
 	// open gl is column major, with translation in the right-most values,
 	// however this math library seems to be row majow, doing a transpose here puts the values in the correct order
 	out = *out.Transpose()

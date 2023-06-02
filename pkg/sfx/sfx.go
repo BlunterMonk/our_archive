@@ -82,3 +82,7 @@ func (s *Streamer) Play() {
 func (s *Streamer) Release() {
 	s.Close()
 }
+
+func Close() {
+	speaker.Close()
+}

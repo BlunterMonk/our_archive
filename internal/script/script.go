@@ -2,6 +2,7 @@ package script
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -27,6 +28,16 @@ type ScriptElement struct {
 	Action string // used when emoticons/special expressions are shown
 	Line   string // text for line
 	Lines  []string
+}
+
+type Metadata struct {
+	Actors []ActorMetadata `json:"actor"`
+}
+type ActorMetadata struct {
+	Name        string  `json:"name"`
+	CenterX     float32 `json:"center_x"`
+	CenterY     float32 `json:"center_y"`
+	CenterScale float32 `json:"center_scale"`
 }
 
 func NewScriptFromFile(filename string) *Script {
@@ -137,6 +148,21 @@ func LoadScript(filename string) []ScriptElement {
 	}
 
 	return lines
+}
+
+func LoadMetadata(filename string) (*Metadata, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	var meta Metadata
+	err = json.Unmarshal(data, &meta)
+	if err != nil {
+		return nil, err
+	}
+
+	return &meta, nil
 }
 
 func (s *Script) Get(index int) ScriptElement {

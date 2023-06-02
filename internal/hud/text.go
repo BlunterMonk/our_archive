@@ -13,11 +13,16 @@ import (
 type Text struct {
 	tx          float32     // target X position
 	ty          float32     // target Y position
+	spacing     float32     // line spacing
 	done        bool        // is done animating
 	Text        []string    // total text to display
 	Output      []string    // starts empty, is filled with the text that should be displayed after typewriter effect
 	TextObjects []*v41.Text // screen space render objects for each line of text
 	Font        *v41.Font   // font used
+	// where the text should calculate position from
+	// 0 = top left
+	anchor   vec2
+	position vec2
 }
 
 const (
@@ -40,7 +45,7 @@ func NewText(content string, color mgl32.Vec3, font *v41.Font) *Text {
 	// create text objects to display
 	textObjects := make([]*v41.Text, 0)
 	for i := 0; i < len(lines); i++ {
-		text := v41.NewText(font, 0.1, 1.0)
+		text := v41.NewText(font, 0.1, 10.0)
 		text.SetColor(color)
 		text.Show()
 
@@ -52,6 +57,7 @@ func NewText(content string, color mgl32.Vec3, font *v41.Font) *Text {
 		Text:        lines,
 		Output:      dialogue,
 		TextObjects: textObjects,
+		spacing:     25.0,
 	}
 }
 
@@ -87,6 +93,21 @@ func (s *Text) SetScale(scale float32) {
 		v.SetScale(scale)
 	}
 }
+func (s *Text) GetScale() float32 {
+	return s.TextObjects[0].Scale
+}
+func (s *Text) SetSpacing(f float32) {
+	s.spacing = f
+}
+func (s *Text) GetSpacing() float32 {
+	return s.spacing
+}
+func (s *Text) SetPositionf(x, y float32) {
+	s.position = vec2{x, y}
+}
+func (s *Text) GetPosition() vec2 {
+	return s.position
+}
 
 func (s *Text) Width() float32 {
 
@@ -106,10 +127,14 @@ func (s *Text) Width() float32 {
 }
 
 func (s *Text) Draw(tx, ty float32) {
+	var wh, ww float32
+	// if s.anchor.X() > 0 {
+	wh = WINDOW_HEIGHT * 0.5
+	// } else if s.anchor.X() < 0 {
+	ww = WINDOW_WIDTH * 0.5
+	// }
 
-	wh := float32(WINDOW_HEIGHT * 0.5)
-	ww := float32(WINDOW_WIDTH * 0.5)
-	lineSpacing := float32(25.0)
+	lineSpacing := float32(s.spacing)
 	for i := 0; i < len(s.TextObjects); i++ {
 		txt := s.TextObjects[i]
 		txt.SetString(s.Output[i])
