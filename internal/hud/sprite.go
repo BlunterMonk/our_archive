@@ -2,15 +2,10 @@ package hud
 
 import (
 	"fmt"
-	"math"
 	"unsafe"
 
 	"github.com/BlunterMonk/opengl/pkg/gfx"
 	"github.com/go-gl/gl/v4.1-core/gl"
-	"github.com/go-gl/mathgl/mgl32"
-	"github.com/ungerik/go3d/mat4"
-	v2 "github.com/ungerik/go3d/vec2"
-	v3 "github.com/ungerik/go3d/vec3"
 )
 
 var (
@@ -40,28 +35,16 @@ var (
 	}
 )
 
-type vec2 v2.T
-
-func (v *vec2) X() float32 { return v[0] }
-func (v *vec2) Y() float32 { return v[1] }
-
-type vec3 v3.T
-
-func (v *vec3) X() float32 { return v[0] }
-func (v *vec3) Y() float32 { return v[1] }
-func (v *vec3) Z() float32 { return v[2] }
-func (v *vec3) ToV3() v3.T { return v3.T{v.X(), v.Y(), v.Z()} }
-
 type Sprite struct {
-	vbo          uint32       // pointer to vertex buffer
-	texture      *gfx.Texture // texture object
-	textures     map[string]*gfx.Texture
-	ULOC         string
-	alpha        float32
-	scale        float32
-	overlayColor vec3
-	position     vec3
-	center       vec3 // used as the "default position" when reseting the sprite's position
+	vbo           uint32 // pointer to vertex buffer
+	activeTexture string // texture object
+	textures      map[string]*gfx.Texture
+	ULOC          string
+	alpha         float32
+	scale         float32
+	overlayColor  Vec3
+	position      Vec3
+	center        Vec3 // used as the "default position" when reseting the sprite's position
 }
 
 func NewSprite() *Sprite {
@@ -69,7 +52,7 @@ func NewSprite() *Sprite {
 		vbo:          SpriteVAO,
 		textures:     map[string]*gfx.Texture{},
 		ULOC:         "ourTexture0",
-		overlayColor: vec3{1, 1, 1},
+		overlayColor: Vec3{1, 1, 1},
 		alpha:        1,
 		scale:        1,
 	}
@@ -86,14 +69,16 @@ func NewSpriteFromFile(filename string) *Sprite {
 		panic(err.Error())
 	}
 
+	textures := make(map[string]*gfx.Texture, 0)
+	textures["_"] = t
 	return &Sprite{
-		vbo:          SpriteVAO,
-		texture:      t,
-		textures:     map[string]*gfx.Texture{},
-		ULOC:         "ourTexture0",
-		overlayColor: vec3{1, 1, 1},
-		alpha:        1,
-		scale:        1,
+		vbo:           SpriteVAO,
+		activeTexture: "_",
+		textures:      textures,
+		ULOC:          "ourTexture0",
+		overlayColor:  Vec3{1, 1, 1},
+		alpha:         1,
+		scale:         1,
 	}
 }
 
@@ -116,16 +101,20 @@ func (s *Sprite) LoadTexture(key, filename string) {
 	s.textures[key] = t
 }
 
+func (s *Sprite) getActiveTexture() *gfx.Texture {
+	return s.textures[s.activeTexture]
+}
+
 func (s *Sprite) Width() float32 {
-	return float32(s.texture.Width())
+	return float32(s.getActiveTexture().Width())
 }
 
 func (s *Sprite) Height() float32 {
-	return float32(s.texture.Height())
+	return float32(s.getActiveTexture().Height())
 }
 
 func (s *Sprite) SetColorf(r, g, b float32) {
-	s.overlayColor = vec3{r, g, b}
+	s.overlayColor = Vec3{r, g, b}
 }
 
 func (s *Sprite) GetAlpha() float32 {
@@ -144,20 +133,20 @@ func (s *Sprite) GetScale() float32 {
 }
 
 func (s *Sprite) SetCenter(x, y, scale float32) {
-	s.position = vec3{x, y, 0}
+	s.position = Vec3{x, y, 0}
 	s.scale = scale
 }
 
 func (s *Sprite) SetPositionf(x, y, z float32) {
-	s.position = vec3{x, y, z}
+	s.position = Vec3{x, y, z}
 }
 
-func (s *Sprite) SetPosition(p mgl32.Vec3) {
-	s.position = vec3{p.X(), p.Y(), p.Z()}
+func (s *Sprite) SetPosition(p Vec3) {
+	s.position = p
 }
 
-func (s *Sprite) GetPosition() mgl32.Vec3 {
-	return mgl32.Vec3{s.position.X(), s.position.Y(), s.position.Z()}
+func (s *Sprite) GetPosition() Vec3 {
+	return s.position
 }
 
 func (s *Sprite) SetActiveTexture(key string) error {
@@ -165,19 +154,19 @@ func (s *Sprite) SetActiveTexture(key string) error {
 		return fmt.Errorf("texture doesn't exist: %s", key)
 	}
 
-	s.texture = s.textures[key]
+	s.activeTexture = key
 	return nil
 }
 
-func (s *Sprite) Draw(m mat4.T, shader *gfx.Program) {
-	s.drawTexture(m, shader, s.texture)
+func (s *Sprite) Draw(m Mat4, shader *gfx.Program) {
+	s.drawTexture(m, shader, s.getActiveTexture())
 }
 
-func (s *Sprite) DrawTexture(m mat4.T, shader *gfx.Program, key string) {
+func (s *Sprite) DrawTexture(m Mat4, shader *gfx.Program, key string) {
 	s.drawTexture(m, shader, s.textures[key])
 }
 
-func (s *Sprite) drawTexture(m mat4.T, shader *gfx.Program, texture *gfx.Texture) {
+func (s *Sprite) drawTexture(m Mat4, shader *gfx.Program, texture *gfx.Texture) {
 	if shader == nil || texture == nil {
 		panic("cannot draw nil objects")
 	}
@@ -207,41 +196,10 @@ func (s *Sprite) drawTexture(m mat4.T, shader *gfx.Program, texture *gfx.Texture
 	texture.UnBind()
 }
 
-func (s *Sprite) GetTransform() mat4.T {
-	// convert parameters into a transform
-	out := mat4.From(&mat4.Ident)
-
-	// get dimensions
-	w := float64(s.Width())
-	h := float64(s.Height())
-	// determine longer side
-	w = math.Min(w, h) / math.Max(w, h)
-
-	// identity matrix to build other matrices from
-	m := mat4.From(&mat4.Ident)
-
-	// get 2D projection matrix for the aspect ratio
-	prj := mat4.From(&mat4.Ident)
-	prj = *prj.ScaleVec3(&v3.T{1, float32(16) / float32(9), 1})
-
-	// scale
-	sc := mat4.From(&mat4.Ident)
-	sc = *sc.ScaleVec3(&v3.T{float32(w) * s.scale, s.scale, s.scale})
-
-	// apply scale
-	out = *m.AssignMul(&out, &sc)
-	// apply projection to 2D
-	out = *m.AssignMul(&out, &prj)
-	// screen space translations need to be normalized
-	position := s.position.ToV3()
-	out = *m.Translate(&position)
-	// open gl is column major, with translation in the right-most values,
-	// however this math library seems to be row majow, doing a transpose here puts the values in the correct order
-	out = *out.Transpose()
-
-	return out
+func (s *Sprite) GetTransform() Mat4 {
+	return CalculateTransform(s.Width(), s.Height(), s.scale, s.position.ToV3())
 }
 
 func (s *Sprite) Translate(x, y, z float32) {
-	s.position = vec3{s.position.X() + x, s.position.Y() + y, s.position.Z() + z}
+	s.position = Vec3{s.position.X() + x, s.position.Y() + y, s.position.Z() + z}
 }

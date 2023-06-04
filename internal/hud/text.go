@@ -21,8 +21,8 @@ type Text struct {
 	Font        *v41.Font   // font used
 	// where the text should calculate position from
 	// 0 = top left
-	anchor   vec2
-	position vec2
+	anchor   Vec2
+	position Vec2
 }
 
 const (
@@ -103,9 +103,9 @@ func (s *Text) GetSpacing() float32 {
 	return s.spacing
 }
 func (s *Text) SetPositionf(x, y float32) {
-	s.position = vec2{x, y}
+	s.position = Vec2{x, y}
 }
-func (s *Text) GetPosition() vec2 {
+func (s *Text) GetPosition() Vec2 {
 	return s.position
 }
 

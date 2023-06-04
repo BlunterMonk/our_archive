@@ -32,12 +32,22 @@ type ScriptElement struct {
 
 type Metadata struct {
 	Actors []ActorMetadata `json:"actor"`
+	Emotes []EmoteMetadata `json:"emote"`
 }
 type ActorMetadata struct {
-	Name        string  `json:"name"`
-	CenterX     float32 `json:"center_x"`
-	CenterY     float32 `json:"center_y"`
-	CenterScale float32 `json:"center_scale"`
+	Name        string   `json:"name"`
+	CenterX     float32  `json:"center_x"`
+	CenterY     float32  `json:"center_y"`
+	CenterScale float32  `json:"center_scale"`
+	EmoteOffset Position `json:"emote_offset"`
+}
+type EmoteMetadata struct {
+	Name  string  `json:"name"`
+	Scale float32 `json:"scale"`
+}
+type Position struct {
+	X float32 `json:"x"`
+	Y float32 `json:"y"`
 }
 
 func NewScriptFromFile(filename string) *Script {

@@ -19,8 +19,6 @@ import (
 	"github.com/BlunterMonk/opengl/pkg/sfx"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
-	"github.com/go-gl/mathgl/mgl32"
-	"github.com/ungerik/go3d/mat4"
 )
 
 var (
@@ -32,6 +30,8 @@ var (
 	speakerY       = float32(515)
 	dialogueX      = float32(129)
 	dialogueY      = float32(573)
+	emoteX         = float32(0)
+	emoteY         = float32(0)
 	speakerScale   = 1.2
 	dialogueDone   bool
 	dialogueIndex  = -1
@@ -45,22 +45,24 @@ var (
 	status     = make(chan uint32)
 
 	// static assets
-	font, fontBold                         *v41.Font
-	bg, fade                               *hud.Sprite
-	dialogue, reply, subjectName           *hud.Text
-	opSingle, dialogueOverlay, dialogueBar *hud.Sprite
+	font, fontBold                                       *v41.Font
+	bg, fade                                             *hud.Sprite
+	dialogue, reply, subjectName                         *hud.Text
+	opSingle, dialogueOverlay, dialogueBar, emoteBalloon *hud.Sprite
 	// dynamic assets
-	charSprite          map[string]*hud.Sprite
-	Actors, Backgrounds map[string]*hud.Sprite
-	Sounds              map[string]*sfx.Streamer
-	Names               map[string]*hud.Text
+	charSprite  map[string]*Actor
+	Actors      map[string]*Actor
+	Emotes      map[string]*hud.AnimatedSprite
+	Backgrounds map[string]*hud.Sprite
+	Sounds      map[string]*sfx.Streamer
+	Names       map[string]*hud.Text
 
 	shuttingDown         bool
 	useStrictCoreProfile = (runtime.GOOS == "darwin")
 	shaderProgram        *gfx.Program
 
-	ACTOR_LEFT  = mgl32.Vec3{-0.5, -0.65, 0.0}
-	ACTOR_RIGHT = mgl32.Vec3{0.5, -0.65, 0.0}
+	ACTOR_LEFT  = hud.Vec3{-0.5, -0.65, 0.0}
+	ACTOR_RIGHT = hud.Vec3{0.5, -0.65, 0.0}
 )
 
 const (
@@ -78,12 +80,6 @@ const (
 
 type eventFunc func(s *hud.Text)
 
-type animation struct {
-	start *mgl32.Vec3
-	end   *mgl32.Vec3
-	speed float32
-}
-
 func ThemeFilePath(n string) string {
 	return fmt.Sprintf("./resources/bgm/Theme_%s.mp3", n)
 }
@@ -96,6 +92,14 @@ func init() {
 }
 
 func loadResources() {
+	// init resource containers
+	charSprite = make(map[string]*Actor)
+	Actors = make(map[string]*Actor)
+	Emotes = make(map[string]*hud.AnimatedSprite)
+	Names = make(map[string]*hud.Text)
+	Sounds = make(map[string]*sfx.Streamer)
+	Backgrounds = make(map[string]*hud.Sprite)
+
 	shaderProgram = gfx.MustInitShader()
 
 	// dialogue font
@@ -103,6 +107,19 @@ func loadResources() {
 	font.ResizeWindow(float32(WINDOW_WIDTH), float32(WINDOW_HEIGHT))
 	fontBold = gfx.MustLoadFont("NotoSans-Bold")
 	fontBold.ResizeWindow(float32(WINDOW_WIDTH), float32(WINDOW_HEIGHT))
+	// static and reusable UI elements
+	opSingle = hud.NewSpriteFromFile("./resources/ui/text_option_single.png")
+	dialogueOverlay = hud.NewSpriteFromFile("./resources/ui/dialogue_bg.png")
+	dialogueBar = hud.NewSpriteFromFile("./resources/ui/dialogue_bar.png")
+	emoteBalloon = hud.NewSpriteFromFile("./resources/ui/balloon.png")
+	emoteBalloon.SetScale(0.085)
+
+	// fade overlay
+	fade = hud.NewSpriteFromFile("./resources/bg/black_screen.jpeg")
+	fade.SetPositionf(0, 0, 0)
+	fade.SetAlpha(0)
+	// static sound for advancing to the next dialogue
+	Sounds["next"] = sfx.NewStreamer("./resources/audio/chat.mp3")
 
 	// setup text output
 	/* script structure
@@ -111,11 +128,6 @@ func loadResources() {
 	* exmaple of character: [mika - 03 - heart]
 	 */
 	Script = script.NewScriptFromFile(fmt.Sprintf("./resources/scripts/%s.txt", CURRENT_SCRIPT))
-	charSprite = make(map[string]*hud.Sprite)
-	Actors = make(map[string]*hud.Sprite)
-	Names = make(map[string]*hud.Text)
-	Sounds = make(map[string]*sfx.Streamer)
-	Backgrounds = make(map[string]*hud.Sprite)
 	for _, v := range Script.Elements() {
 		// create names if they don't exist
 		if _, ok := Names[v.Name]; !ok {
@@ -123,7 +135,7 @@ func loadResources() {
 			Names[v.Name] = hud.NewSolidText(toTitle(v.Name), hud.COLOR_WHITE, fontBold)
 			Names[v.Name].SetScale(float32(speakerScale))
 			Names[v.Name].SetPositionf(speakerX, speakerY)
-			// mikaName2 := hud.NewSolidText("Tea Party", mgl32.Vec3{0.45, 0.69, 0.83}, font)
+			// mikaName2 := hud.NewSolidText("Tea Party", hud.Vec3{0.45, 0.69, 0.83}, font)
 			// mikaName2.SetScale(0.85)
 		}
 
@@ -131,23 +143,32 @@ func loadResources() {
 			continue
 		}
 
-		key := spriteKey(v)
-		if _, ok := Actors[v.Name]; !ok {
-			Actors[v.Name] = hud.NewSprite()
-		}
-
 		switch v.Name {
 		case "bg":
 			fmt.Println("loading background:", v.Name)
 			Backgrounds[v.Mood] = hud.NewSpriteFromFile(fmt.Sprintf("./resources/bg/%v.jpeg", v.Mood))
-			Actors[v.Name].LoadTexture(key, fmt.Sprintf("./resources/bg/%s.jpeg", v.Mood))
+			// Actors[v.Name].LoadTexture(key, fmt.Sprintf("./resources/bg/%s.jpeg", v.Mood))
 		case "bgm":
 			fmt.Println("loading bgm:", v.Mood)
 			Sounds[v.Mood] = sfx.NewStreamer(ThemeFilePath(v.Mood))
-		default:
-			fmt.Println("loading actor:", v.Name)
-			Actors[v.Name].LoadTexture(key, fmt.Sprintf("./resources/actor/%s/%s-%s.png", v.Name, v.Name, v.Mood))
-			Actors[v.Name].SetPositionf(0, 0, 0)
+		default: // if it's not a system asset it's an actor
+			fmt.Println("loading actor:", v.Name, "with expression:", v.Mood, "and action:", v.Action)
+			key := spriteKey(v)
+			if _, ok := Actors[v.Name]; !ok {
+				Actors[v.Name] = NewActor(v.Name)
+			}
+
+			// check to see if the action is an emote
+			switch v.Action {
+			case "emote": // load the emote if it isn't already
+				if _, ok := Emotes[v.Mood]; !ok {
+					Emotes[v.Mood] = hud.NewAnimatedSpriteFromFile(fmt.Sprintf("./resources/emote/%s.gif", v.Mood))
+				}
+				break
+			default: // if it's not an emote, then load the texture onto the actor as an expression
+				Actors[v.Name].LoadTexture(key, fmt.Sprintf("./resources/actor/%s/%s-%s.png", v.Name, v.Name, v.Mood))
+				Actors[v.Name].SetPositionf(0, 0, 0)
+			}
 		}
 
 		// second switch to establish starting values
@@ -172,24 +193,19 @@ func loadResources() {
 		if a, ok := Actors[actor.Name]; ok {
 			fmt.Println("setting center:", actor.Name)
 			a.SetCenter(actor.CenterX, actor.CenterY, actor.CenterScale)
+			a.emoteBalloonOffset = hud.Vec3{actor.EmoteOffset.X, actor.EmoteOffset.Y, 0}
+			// p := hud.Vec3{-0.24000002, 0.4199995, 0}
+			// diff := hud.Vec3{0.26000002, -1.0799996, 0}
+			// fmt.Println("diff:", p.Sub(Actors["kayoko"].GetPosition()))
+			// emoteBalloon.SetPosition(Actors["kayoko"].GetPosition().Sub(diff))
+			// fmt.Println("pos:", emoteBalloon.GetPosition())
 		}
 	}
-
-	// load the remaining static assets needed for all scripts
-	Sounds["next"] = sfx.NewStreamer("./resources/audio/chat.mp3")
-
-	// fade overlay
-	fade = hud.NewSpriteFromFile("./resources/bg/black_screen.jpeg")
-	fade.SetPositionf(0, 0, 0)
-	fade.SetAlpha(0)
-	// dialogue text
-	// dialogue = hud.NewText(Script.Get(0).Line, hud.COLOR_WHITE, font)
-	// dialogue.SetScale(0.85)
-	// dialogue.AsyncAnimate(&status)
-
-	opSingle = hud.NewSpriteFromFile("./resources/ui/text_option_single.png")
-	dialogueOverlay = hud.NewSpriteFromFile("./resources/ui/dialogue_bg.png")
-	dialogueBar = hud.NewSpriteFromFile("./resources/ui/dialogue_bar.png")
+	for _, emote := range metadata.Emotes {
+		if a, ok := Emotes[emote.Name]; ok {
+			a.SetScale(emote.Scale)
+		}
+	}
 }
 
 func releaseResources() {
@@ -261,7 +277,6 @@ func main() {
 
 	var delay time.Timer
 	counter := 0
-
 F:
 	for {
 		if window.ShouldClose() {
@@ -318,20 +333,12 @@ F:
 			drawActors()
 			drawUI()
 
-			if reply != nil {
-				DrawSprite(opSingle, mat4.From(&mat4.Ident), shaderProgram)
-			}
-
 			// re-enable blending to resolve alpha issue
 			shaderProgram.Use()
 			gl.Enable(gl.BLEND) //Enable blending.
 			gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-			// DrawSprite(screenshotOverlay, mat4.From(&mat4.Ident), shaderProgram)
-
-			if fade != nil {
-				DrawSprite(fade, mat4.From(&mat4.Ident), shaderProgram) // dialogue window
-			}
+			drawOverlays()
 
 			// end of draw loop
 			window.SwapBuffers()
@@ -353,7 +360,7 @@ F:
 
 func drawBackgrounds() {
 	if bg != nil {
-		DrawSprite(bg, mat4.From(&mat4.Ident), shaderProgram) // background
+		DrawSprite(bg, hud.NewMat4(), shaderProgram) // background
 	}
 }
 func drawActors() {
@@ -366,17 +373,18 @@ func drawActors() {
 				actor.SetColorf(0.9, 0.9, 0.9)
 			}
 
-			// actor.DrawTexture(actor.GetTransform(), shaderProgram, spriteKey())
-			DrawSprite(actor, actor.GetTransform(), shaderProgram)
+			// draw the actor
+			actor.Draw(shaderProgram)
 		}
 	}
 }
 func drawUI() {
+	// DrawSprite(emoteBalloon, emoteBalloon.GetTransform(), shaderProgram)
 	// Draw text
 	if dialogue != nil {
-		DrawSprite(dialogueOverlay, mat4.From(&mat4.Ident), shaderProgram) // dialogue window
-		DrawSprite(dialogueBar, mat4.From(&mat4.Ident), shaderProgram)     // dialogue bar overlay
-		DrawText(dialogue, dialogueX, dialogueY)                           // actual text
+		DrawSprite(dialogueOverlay, hud.NewMat4(), shaderProgram) // dialogue window
+		DrawSprite(dialogueBar, hud.NewMat4(), shaderProgram)     // dialogue bar overlay
+		DrawText(dialogue, dialogueX, dialogueY)                  // actual text
 	}
 	if subjectName != nil {
 		DrawText(subjectName, speakerX, speakerY) // speaker's name
@@ -384,11 +392,21 @@ func drawUI() {
 	if reply != nil {
 		DrawText(reply, (WINDOW_WIDTH/2)-(reply.Width()/2)+25, 280) // @TODO: figure out bounds of text dynamically
 	}
+	if reply != nil {
+		DrawSprite(opSingle, hud.NewMat4(), shaderProgram)
+	}
+}
+func drawOverlays() {
+	// DrawSprite(screenshotOverlay, hud.NewMat4(), shaderProgram)
+
+	if fade != nil {
+		DrawSprite(fade, hud.NewMat4(), shaderProgram) // dialogue window
+	}
 }
 
 func keyCallback(window *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
 
-	if action != glfw.Press {
+	if action != glfw.Press && action != glfw.Repeat {
 		return
 	}
 
@@ -398,34 +416,35 @@ func keyCallback(window *glfw.Window, key glfw.Key, scancode int, action glfw.Ac
 		window.SetShouldClose(true)
 	}
 
-	// activeChar := Actors["kayoko"]
+	activeChar := emoteBalloon //Actors["kayoko"]
 	if key == glfw.KeyLeft {
-		// moveActor(activeChar, -0.01, 0)
+		moveActor(activeChar, -0.01, 0)
 		// dialogueX -= 1
 		// fmt.Printf("speaker (%d,%d)\n", dialogueX, dialogueY)
 	}
 	if key == glfw.KeyRight {
-		// moveActor(activeChar, 0.01, 0)
+		moveActor(activeChar, 0.01, 0)
 		// dialogueX += 1
 		// fmt.Printf("speaker (%d,%d)\n", dialogueX, dialogueY)
 	}
 	if key == glfw.KeyUp {
-		// moveActor(activeChar, 0, 0.01)
+		moveActor(activeChar, 0, 0.01)
 		// dialogueY -= 1
 		// fmt.Printf("speaker (%d,%d)\n", dialogueX, dialogueY)
 	}
 	if key == glfw.KeyDown {
+		moveActor(activeChar, 0, -0.01)
 		// dialogueY += 1
 		// fmt.Printf("speaker (%d,%d)\n", dialogueX, dialogueY)
 	}
 	if key == glfw.KeyS {
-		// scaleActor(activeChar, -0.01)
+		scaleActor(activeChar, -0.01)
 		// subjectName.SetScale(subjectName.GetScale() + 0.1)
 		// fmt.Println("scale:", subjectName.GetScale())
 		// dialogue.SetSpacing(dialogue.GetSpacing() + 0.1)
 	}
 	if key == glfw.KeyD {
-		// scaleActor(activeChar, 0.01)
+		scaleActor(activeChar, 0.01)
 		// subjectName.SetScale(subjectName.GetScale() - 0.1)
 		// fmt.Println("scale:", subjectName.GetScale())
 		// dialogue.SetSpacing(dialogue.GetSpacing() - 0.1)
@@ -533,6 +552,24 @@ func nextDialogue(status *chan uint32) {
 
 		charSprite[element.Name] = Actors[element.Name]
 
+		// convert action into predefined parameters
+		switch element.Action {
+		case "emote":
+			if _, ok := Emotes[element.Mood]; ok {
+				charSprite[element.Name].AnimateEmote(element.Mood)
+			} else {
+				log.Fatalf("no emote found with name: %s", element.Mood)
+			}
+			return // return here because if it's an emote, we don't want to change the actor sprite
+		default: // if the action isn't a special case like emotes, then it's probably a sprite animation
+			anim, async := determineActorAnimation(element.Mood, element.Action, charSprite[element.Name].GetPosition())
+			// move the actor if the action set the position
+			if anim != nil {
+				applyAnimation(status, anim, charSprite[element.Name], async)
+			}
+			break
+		}
+
 		// fmt.Println(charSprite[element.Name])
 		// fmt.Println(Actors[element.Name])
 		// fmt.Println("---------------------")
@@ -540,22 +577,15 @@ func nextDialogue(status *chan uint32) {
 		if err != nil {
 			panic(err)
 		}
-
-		// convert action into predefined parameters
-		anim, async := getActionParameters(element.Action, charSprite[element.Name].GetPosition())
-
-		// move the actor if the action set the position
-		if anim != nil {
-			applyAnimation(status, anim, charSprite[element.Name], async)
-		}
 	}
 }
 
-func getActionParameters(action string, charPos mgl32.Vec3) (*animation, bool) {
+func determineActorAnimation(mood, action string, charPos hud.Vec3) (*animation, bool) {
 	var async bool
-	var startingPosition *mgl32.Vec3
-	var targetPosition *mgl32.Vec3
+	var startingPosition *hud.Vec3
+	var targetPosition *hud.Vec3
 	var transitionSpeed = float32(0.1)
+	var emoteName string
 
 	// @TODO: maybe find a better workaround for this
 	// need to specificy async operations vs non-async on the script
@@ -565,42 +595,46 @@ func getActionParameters(action string, charPos mgl32.Vec3) (*animation, bool) {
 	}
 
 	switch action {
+	case "emote":
+		emoteName = mood
+		break
 	case "enter_left":
-		targetPosition = &mgl32.Vec3{0, charPos.Y(), charPos.Z()}
-		startingPosition = &mgl32.Vec3{-2, charPos.Y(), charPos.Z()}
+		targetPosition = &hud.Vec3{0, charPos.Y(), charPos.Z()}
+		startingPosition = &hud.Vec3{-2, charPos.Y(), charPos.Z()}
 		break
 	case "enter_right":
-		targetPosition = &mgl32.Vec3{0, charPos.Y(), charPos.Z()}
-		startingPosition = &mgl32.Vec3{2, charPos.Y(), charPos.Z()}
+		targetPosition = &hud.Vec3{0, charPos.Y(), charPos.Z()}
+		startingPosition = &hud.Vec3{2, charPos.Y(), charPos.Z()}
 		break
 	case "exit_left":
-		targetPosition = &mgl32.Vec3{-2, charPos.Y(), charPos.Z()}
+		targetPosition = &hud.Vec3{-2, charPos.Y(), charPos.Z()}
 		break
 	case "exit_right":
-		targetPosition = &mgl32.Vec3{2, charPos.Y(), charPos.Z()}
+		targetPosition = &hud.Vec3{2, charPos.Y(), charPos.Z()}
 		break
 	case "move_left":
 		transitionSpeed = 0.05
-		targetPosition = &mgl32.Vec3{ACTOR_LEFT.X(), charPos.Y(), charPos.Z()}
+		targetPosition = &hud.Vec3{ACTOR_LEFT.X(), charPos.Y(), charPos.Z()}
 		break
 	case "move_right":
-		targetPosition = &mgl32.Vec3{ACTOR_RIGHT.X(), charPos.Y(), charPos.Z()}
+		targetPosition = &hud.Vec3{ACTOR_RIGHT.X(), charPos.Y(), charPos.Z()}
 		break
 	case "move_center":
-		targetPosition = &mgl32.Vec3{0, charPos.Y(), charPos.Z()}
+		targetPosition = &hud.Vec3{0, charPos.Y(), charPos.Z()}
 		break
 	default:
 		return nil, false
 	}
 
 	return &animation{
-		start: startingPosition,
-		end:   targetPosition,
-		speed: transitionSpeed,
+		start:     startingPosition,
+		end:       targetPosition,
+		speed:     transitionSpeed,
+		emoteName: emoteName,
 	}, async
 }
 
-func applyAnimation(status *chan uint32, anim *animation, actor *hud.Sprite, async bool) uint32 {
+func applyAnimation(status *chan uint32, anim *animation, actor *Actor, async bool) uint32 {
 	if anim.start != nil {
 		actor.SetPosition(*anim.start)
 	}
@@ -608,7 +642,7 @@ func applyAnimation(status *chan uint32, anim *animation, actor *hud.Sprite, asy
 	if anim.end != nil {
 		if async {
 			fmt.Println("performing async action")
-			go AsyncAnimateMove(actor, *anim.end, anim.speed, status)
+			go AsyncAnimateMove(actor.Sprite, *anim.end, anim.speed, status)
 		} else {
 			actor.SetPosition(*anim.end)
 			return 2
@@ -627,7 +661,7 @@ func delayNextDialogue(status *chan uint32, seconds int) {
 
 //////////////////////////////////////////////
 
-func DrawSprite(sprite *hud.Sprite, m mat4.T, shader *gfx.Program) {
+func DrawSprite(sprite *hud.Sprite, m hud.Mat4, shader *gfx.Program) {
 	sprite.Draw(m, shader)
 }
 
@@ -645,7 +679,7 @@ func AsyncAnimateFadeOut(s *hud.Sprite, status *chan uint32) {
 		select {
 		case <-UniversalTicker:
 			s.SetAlpha(s.GetAlpha() + float32(0.025))
-			fmt.Println("fade out:", s.GetAlpha())
+			// fmt.Println("fade out:", s.GetAlpha())
 			break
 		}
 	}
@@ -660,7 +694,7 @@ func AsyncAnimateFadeIn(s *hud.Sprite, status *chan uint32) {
 		select {
 		case <-UniversalTicker:
 			s.SetAlpha(s.GetAlpha() - float32(0.025))
-			fmt.Println("fade in:", s.GetAlpha())
+			// fmt.Println("fade in:", s.GetAlpha())
 			break
 		}
 	}
@@ -668,7 +702,7 @@ func AsyncAnimateFadeIn(s *hud.Sprite, status *chan uint32) {
 	*status <- 2 // send status update to listening channel
 }
 
-func AsyncAnimateMove(s *hud.Sprite, targetPosition mgl32.Vec3, speed float32, status *chan uint32) {
+func AsyncAnimateMove(s *hud.Sprite, targetPosition hud.Vec3, speed float32, status *chan uint32) {
 
 	fmt.Println("AsyncAnimateMoveLeft, sprite position:", s.GetPosition(), "to:", targetPosition)
 	// this will move the actor to a target location
@@ -700,7 +734,7 @@ func spriteKey(e script.ScriptElement) string {
 
 func clear() {
 	charSprite = nil
-	charSprite = make(map[string]*hud.Sprite, 0)
+	charSprite = make(map[string]*Actor, 0)
 	subjectName = nil
 	if reply != nil {
 		reply.Release()
