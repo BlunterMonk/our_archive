@@ -18,7 +18,8 @@ type Text struct {
 	Text        []string    // total text to display
 	Output      []string    // starts empty, is filled with the text that should be displayed after typewriter effect
 	TextObjects []*v41.Text // screen space render objects for each line of text
-	Font        *v41.Font   // font used
+	font        *v41.Font   // font used
+	color       mgl32.Vec3
 	// where the text should calculate position from
 	// 0 = top left
 	anchor   Vec2
@@ -27,9 +28,6 @@ type Text struct {
 
 const (
 	nbsp = 0xA0
-	// TODO: make this a variable for when the window changes size
-	WINDOW_WIDTH  = 1280
-	WINDOW_HEIGHT = 720
 )
 
 var (
@@ -58,6 +56,7 @@ func NewText(content string, color mgl32.Vec3, font *v41.Font) *Text {
 		Output:      dialogue,
 		TextObjects: textObjects,
 		spacing:     25.0,
+		font:        font,
 	}
 }
 
@@ -69,23 +68,23 @@ func NewSolidText(content string, color mgl32.Vec3, font *v41.Font) *Text {
 
 func (s *Text) SetText(content string) {
 
+	// setup text output
 	lines := strings.Split(wrapString(content, 79), "\n")
-	// dialogue := make([]string, 0)
+	dialogue := make([]string, 0)
 	// create text objects to display
-	// textObjects := make([]*v41.Text, 0)
-	if len(s.TextObjects) < len(lines) {
-		for i := 0; i < len(lines); i++ {
-			text := v41.NewText(s.Font, 0.1, 1.0)
-			text.SetColor(mgl32.Vec3{1, 1, 1})
-			text.SetScale(1.0)
-			text.Hide()
+	textObjects := make([]*v41.Text, 0)
+	for i := 0; i < len(lines); i++ {
+		text := v41.NewText(s.font, 0.1, 10.0)
+		text.SetColor(s.color)
+		text.Show()
 
-			s.Output = append(s.Output, "")
-			s.TextObjects = append(s.TextObjects, text)
-		}
+		dialogue = append(dialogue, "")
+		textObjects = append(textObjects, text)
 	}
 
 	s.Text = lines
+	s.Output = dialogue
+	s.TextObjects = textObjects
 }
 
 func (s *Text) SetScale(scale float32) {
@@ -126,12 +125,12 @@ func (s *Text) Width() float32 {
 	return max
 }
 
-func (s *Text) Draw(tx, ty float32) {
+func (s *Text) Draw(screenWidth, screenHeight, tx, ty float32) {
 	var wh, ww float32
 	// if s.anchor.X() > 0 {
-	wh = WINDOW_HEIGHT * 0.5
+	wh = screenHeight * 0.5
 	// } else if s.anchor.X() < 0 {
-	ww = WINDOW_WIDTH * 0.5
+	ww = screenWidth * 0.5
 	// }
 
 	lineSpacing := float32(s.spacing)

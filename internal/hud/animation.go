@@ -13,8 +13,9 @@ type Animation struct {
 	loopCount    int
 }
 
-func NewAnimation(gif *AnimatedSprite) *Animation {
+func NewAnimation(name string, gif *AnimatedSprite) *Animation {
 	return &Animation{
+		name:      name,
 		data:      gif,
 		loopCount: 1,
 	}
@@ -53,4 +54,8 @@ func (a *Animation) IsAnimating() bool {
 
 func (a *Animation) Draw(position Vec3, shader *gfx.Program) {
 	a.data.DrawFrame(a.currentFrame, position, shader)
+}
+
+func (a *Animation) GetName() string {
+	return a.name
 }

@@ -11,8 +11,7 @@ import (
 )
 
 const (
-	ScriptMarkerRegexFormat = `^\[([?a-zA-Z0-9_]+)\s-\s([a-z0-9_]+)\s-\s([_a-z0-9]+)\]$`
-
+	ScriptMarkerRegexFormat = `^\[([?a-zA-Z0-9_]+)\s-\s([a-zA-Z0-9_]+)\s-\s([_a-zA-Z0-9]+)\]$`
 	// format: [subject - category - action]
 	// ScriptMarkerRegexFormat = `^\[([a-zA-Z0-9]+)\s-\s([a-z0-9]+)\s-\s([a-z]+)\]$`
 )
@@ -31,19 +30,35 @@ type ScriptElement struct {
 }
 
 type Metadata struct {
-	Actors []ActorMetadata `json:"actor"`
-	Emotes []EmoteMetadata `json:"emote"`
+	Actors    []ActorMetadata     `json:"actor"`
+	Animation []AnimationMetadata `json:"animation"`
+	Emotes    []EmoteMetadata     `json:"emote"`
 }
 type ActorMetadata struct {
-	Name        string   `json:"name"`
-	CenterX     float32  `json:"center_x"`
-	CenterY     float32  `json:"center_y"`
-	CenterScale float32  `json:"center_scale"`
-	EmoteOffset Position `json:"emote_offset"`
+	Name              string   `json:"name"`
+	CenterX           float32  `json:"center_x"`
+	CenterY           float32  `json:"center_y"`
+	CenterScale       float32  `json:"center_scale"`
+	EmoteOffsetHead   Position `json:"emote_offset_head"`
+	EmoteOffsetBubble Position `json:"emote_offset_bubble"`
+}
+type AnimationMetadata struct {
+	Name   string          `json:"name"`
+	Speed  float32         `json:"speed"`
+	Frames []FrameMetadata `json:"frames"`
+}
+type FrameMetadata struct {
+	X     *float32 `json:"x"`
+	Y     *float32 `json:"y"`
+	AddX  *float32 `json:"add_x"`
+	AddY  *float32 `json:"add_y"`
+	Delay *float32 `json:"delay"`
+	Reset bool     `json:"reset"`
 }
 type EmoteMetadata struct {
 	Name  string  `json:"name"`
 	Scale float32 `json:"scale"`
+	Type  string  `json:"type"`
 }
 type Position struct {
 	X float32 `json:"x"`
@@ -51,64 +66,12 @@ type Position struct {
 }
 
 func NewScriptFromFile(filename string) *Script {
-
-	/*f, err := os.Open(filename)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-
-	// Compile the expression once, usually at init time.
-	// Use raw strings to avoid having to quote the backslashes.
-	var validID = regexp.MustCompile(ScriptMarkerRegexFormat)
-
-	lines := make(map[string]ScriptElement, 0)
-
-	var index int
-	var name, mood string
-	var expn string
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-
-		row := strings.Trim(scanner.Text(), " ")
-		match := validID.MatchString(row)
-		if match {
-			// format: [name - mood - expression]
-			values := validID.FindAllStringSubmatch(row, -1)
-			log.Printf("Dialogue Count[%v]: %v\n", index, row)
-			name = values[0][1]
-			mood = values[0][2]
-			expn = values[0][3]
-			continue
-		}
-
-		ind := fmt.Sprint(index)
-		lines[ind] = ScriptElement{
-			Index: index,
-			Name:  name,
-			Mood:  mood,
-			Expn:  expn,
-			Line:  row,
-		}
-		index++
-		expn = ""
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}*/
 	e := LoadScript(filename)
 	return &Script{
 		elements: e,
 	}
 }
 
-// returns:
-// map of script
-// number of dialogue found
-// number of options found
-// number of double options found
-// number of titles found
 func LoadScript(filename string) []ScriptElement {
 
 	f, err := os.Open(filename)

@@ -12,13 +12,8 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
-const (
-	WINDOW_WIDTH  = 1280
-	WINDOW_HEIGHT = 720
-)
-
-func Init() *glfw.Window {
-	window := initGlfw()
+func Init(windowWidth, windowHeight int) *glfw.Window {
+	window := initGlfw(windowWidth, windowHeight)
 	initGL()
 
 	return window
@@ -39,7 +34,7 @@ func initGL() uint32 {
 	return prog
 }
 
-func initGlfw() *glfw.Window {
+func initGlfw(windowWidth, windowHeight int) *glfw.Window {
 	if err := glfw.Init(); err != nil {
 		panic(err)
 	}
@@ -51,7 +46,7 @@ func initGlfw() *glfw.Window {
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
-	window, err := glfw.CreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "VN Test", nil, nil)
+	window, err := glfw.CreateWindow(windowWidth, windowHeight, "VN Test", nil, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -87,7 +82,7 @@ func MustLoadFont(fontName string) *v41.Font {
 	var font *v41.Font
 	var config *gltext.FontConfig
 
-	config, err := gltext.LoadTruetypeFontConfig("fontconfigs", fontName)
+	config, err := gltext.LoadTruetypeFontConfig("./resources/fontconfigs", fontName)
 	if err == nil {
 		font, err = v41.NewFont(config)
 		if err != nil {
@@ -95,7 +90,7 @@ func MustLoadFont(fontName string) *v41.Font {
 		}
 		fmt.Println("Font loaded from disk...")
 	} else {
-		fd, err := os.Open(fmt.Sprintf("font/%v.ttf", fontName))
+		fd, err := os.Open(fmt.Sprintf("./resources/font/%v.ttf", fontName))
 		if err != nil {
 			panic(err)
 		}
