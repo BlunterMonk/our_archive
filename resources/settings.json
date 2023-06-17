@@ -1,0 +1,114 @@
+{
+    "actor": [
+        {
+            "name": "mika",
+            "faction_name": "Tea Party",
+            "center_x": 0,
+            "center_y": -0.65,
+            "center_scale": 1,
+            "emote_offset_bubble": {
+                "x": 0.25, 
+                "y": -1.14
+            }
+        },
+        {
+            "name": "seia",
+            "faction_name": "Tea Party",
+            "center_x": 0,
+            "center_y": -0.65,
+            "center_scale": 0.8,
+            "emote_offset_bubble": {
+                "x": 0.35, 
+                "y": -1.24
+            }
+        },
+        {
+            "name": "akira",
+            "center_x": 0.11,
+            "center_y": -0.83,
+            "center_scale": 1.05,
+            "emote_offset_bubble": {
+                "x": 0.35, 
+                "y": -1.24
+            }
+        },
+        {
+            "name": "kazusa",
+            "center_x": -0.15,
+            "center_y": -0.9,
+            "center_scale": 1,
+            "emote_offset_bubble": {
+                "x": 0.26000002, 
+                "y": -1.0799996
+            }
+        },
+        {
+            "name": "kayoko",
+            "center_x": 0.02,
+            "center_y": -0.66,
+            "center_scale": 0.9,
+            "emote_offset_head": {
+                "x": 0.26000002, 
+                "y": -1.0799996
+            },
+            "emote_offset_bubble": {
+                "x": 0.26000002, 
+                "y": -1.0799996
+            }
+        }
+    ],
+    "animation": [
+        {
+            "name": "left_to_right",
+            "speed": 0.1,
+            "frames": [
+                {"x": -0.5},
+                {"x": 0},
+                {"x": 0.5},
+                {"x": 0},
+                {"x": -0.5}
+            ]
+        },
+        {
+            "name": "move_left",
+            "speed": 0.0009,
+            "frames": [
+                {"x": -0.15}
+            ]
+        },
+        {
+            "name": "bounce",
+            "speed": 0.1,
+            "frames": [
+                {"add_y":-0.05, "delay":0.3},
+                {"reset": true}
+            ]
+        },
+        {
+            "name": "set_left",
+            "speed": 1,
+            "frames": [
+                {"x":-0.5}
+            ]
+        },
+        {
+            "name": "set_right",
+            "speed": 1,
+            "frames": [
+                {"x":0.5}
+            ]
+        }
+    ],
+    "emote": [
+        {
+            "name": "dots",
+            "scale": 0.085,
+            "type": "bubble"
+        },
+        {
+            "name": "sweat",
+            "scale": 1,
+            "type": "head"
+        }
+    ]
+}

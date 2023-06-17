@@ -1,0 +1,54 @@
+[clear - _ - _]
+[bg - bitch - _]
+[fade - _ - in]
+[bgm - 48_intro - _]
+[beatrice - _ - _]
+Tell me. For whom do you fight?
+[beatrice - _ - _]
+Hmph! How very glib. And do you believe in Kivotos? Kivotos's unity is forged of falsehoods. 
+[beatrice - _ - _]
+Its academy-districts are built on deceit. And its faith is an instrument of deception.
+[beatrice - _ - _]
+It is naught but a cobweb of lies. To believe in Kivotos is to believe in nothing. 
+[beatrice - _ - _]
+In Kivotos, the citizens often summon students to fight in their stead--though your comrades only rarely respond in kind. 
+[beatrice - _ - _]
+Which is strange, is it not?
+[beatrice - _ - _]
+Is the "Federal Student Council" otherwise engaged? I was given to understand they were your protectors. 
+[beatrice - _ - _]
+If you truly believe them your guardians, why do you not repeat the trick that served you so well in D.U., and call them down? 
+[beatrice - _ - _]
+They will answer--so long as you lavish them with pyroxenes and gorge them on credits. 
+[beatrice - _ - _]
+Your "students" are no different than that of gematra's--mimeses every one. 
+[beatrice - _ - _]
+Accept but this, and you will see how Kivotos's faith is bleeding the land dry.
+[beatrice - _ - _]
+Nor is this unknown to your masters. 
+[beatrice - _ - _]
+Which prompts the question: Why do they cling to these false entities? What drives even men of learning--even the great Student Council President--to grovel at their feet? 
+[beatrice - _ - _]
+The answer? 
+[bg - bitch2 - none]
+[bgm - 48_Verse - _]
+[beatrice - _ - _]
+Your masters lack the strength to do otherwise! 
+[beatrice - _ - _]
+For the world of man to mean anything, man must own the world. To this end, he hath fought ever to raise himself through conflict--to grow rich through conquest. 
+[beatrice - _ - _]
+And when the dust of battle settles, is it ever the strong who dictate the fate of the weak.
+[beatrice - _ - _]
+Knowing this, but a single path is open to the impotent ruler--that of false worship. 
+[beatrice - _ - _]
+A path which leads to enervation and death. 
+[beatrice - _ - _]
+Only a woman of power can rightly steer the course of civilization.
+[beatrice - _ - _]
+And in this land of creeping mendacity, that one truth will prove its salvation.
+[bg - bitch - none]
+[bgm - 48_Chorus - _]
+[beatrice - _ - _]
+Come, Sensei of Kivotos, face me! Your defeat shall serve as proof of my readiness to rule! 
+[beatrice - _ - _]
+It is only right that I should take your realm. For none among you has the power to stop me!

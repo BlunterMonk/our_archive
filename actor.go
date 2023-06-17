@@ -11,6 +11,7 @@ type Actor struct {
 	*hud.Sprite
 
 	name           string
+	FactionName    string
 	emoteOffsets   map[string]hud.Vec3
 	emoteAnimation *hud.Animation
 }

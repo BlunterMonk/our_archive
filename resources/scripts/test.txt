@@ -1,12 +1,16 @@
-[bg - prison_night - none]
-[mika - 00 - none]
-....Goodbye?
-[mika - 03 - move_left]
-....Moving to the left?
-[seia - 00 - move_right]
-....mika?
-[mika - 05 - _]
+[fade - _ - out]
+[bg - trinity_clubroom - none]
+[mika - 00 - set_left]
+[seia - 00 - set_right]
+[fade - _ - in]
+[bgm - theme_54 - _]
+[seia - 00 - move_left]
+....Mika?
+[mika - 05 - bounce]
+[mika - dots - emote]
 Oh.... you're approaching me?
+[mika - 15 - _]
+....Instead of running away you're coming closer?
 [seia - 01 - _]
 I can't kiss the shit out of you unless I get closer
 [mika - 03 - _]

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"image"
 	"log"
 	"os"
 	"os/signal"
@@ -20,6 +21,7 @@ import (
 	"github.com/BlunterMonk/opengl/pkg/sfx"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 var (
@@ -69,7 +71,7 @@ var (
 	Emotes          map[string]*hud.AnimatedSprite
 	Backgrounds     map[string]*hud.Sprite
 	Sounds          map[string]*sfx.Streamer
-	Names           map[string]*hud.Text
+	Names, Factions map[string]*hud.Text
 
 	currentBGM           *sfx.Streamer
 	shuttingDown         bool
@@ -99,10 +101,6 @@ type View struct {
 	WindowHeight int
 }
 
-func ThemeFilePath(n string) string {
-	return fmt.Sprintf("./resources/bgm/Theme_%s.mp3", n)
-}
-
 // in Open GL, Y starts at the bottom
 
 func init() {
@@ -128,6 +126,7 @@ func loadResources(view View, scriptName string) {
 	Actors = make(map[string]*Actor)
 	Emotes = make(map[string]*hud.AnimatedSprite)
 	Names = make(map[string]*hud.Text)
+	Factions = make(map[string]*hud.Text)
 	Sounds = make(map[string]*sfx.Streamer)
 	Backgrounds = make(map[string]*hud.Sprite)
 
@@ -153,7 +152,7 @@ func loadResources(view View, scriptName string) {
 	fade.SetPositionf(0, 0, 0)
 	fade.SetAlpha(0)
 	// static sound for advancing to the next dialogue
-	Sounds["next"] = sfx.NewStreamer("./resources/audio/chat.mp3")
+	// Sounds["next"] = sfx.NewStreamer("./resources/audio/chat.mp3")
 
 	// setup text output
 	/* script structure
@@ -181,7 +180,10 @@ func loadResources(view View, scriptName string) {
 			Backgrounds[v.Mood] = hud.NewSpriteFromFile(fmt.Sprintf("./resources/bg/%v.jpeg", v.Mood))
 		case "bgm":
 			fmt.Println("loading bgm:", v.Mood)
-			Sounds[v.Mood] = sfx.NewStreamer(ThemeFilePath(v.Mood))
+			Sounds[v.Mood] = sfx.NewStreamer(fmt.Sprintf("./resources/bgm/%s.mp3", v.Mood))
+		case "sfx":
+			fmt.Println("loading sfx:", v.Mood)
+			Sounds[v.Mood] = sfx.NewStreamer(fmt.Sprintf("./resources/sfx/%s.mp3", v.Mood))
 		default: // if it's not a system asset it's an actor
 			fmt.Println("loading actor:", v.Name, "with expression:", v.Mood, "and action:", v.Action)
 			key := spriteKey(v)
@@ -194,6 +196,10 @@ func loadResources(view View, scriptName string) {
 			case "emote": // load the emote if it isn't already
 				if _, ok := Emotes[v.Mood]; !ok {
 					Emotes[v.Mood] = hud.NewAnimatedSpriteFromFile(fmt.Sprintf("./resources/emote/%s.gif", v.Mood))
+					emoteSfx := fmt.Sprintf("sfx_%s", v.Mood)
+					if _, ok := Sounds[emoteSfx]; !ok {
+						Sounds[emoteSfx] = sfx.NewStreamer(fmt.Sprintf("./resources/sfx/%s.mp3", emoteSfx))
+					}
 				}
 				break
 			default: // if it's not an emote, then load the texture onto the actor as an expression
@@ -203,7 +209,7 @@ func loadResources(view View, scriptName string) {
 		}
 	}
 
-	metadata, err := script.LoadMetadata("./resources/scripts/config.json")
+	metadata, err := script.LoadMetadata("./resources/settings.json")
 	if err != nil {
 		panic(err)
 	}
@@ -226,6 +232,12 @@ func loadResources(view View, scriptName string) {
 						a.AddEmoteData(emote.Name, hud.Vec3{actor.EmoteOffsetBubble.X, actor.EmoteOffsetBubble.Y, 0})
 					}
 				}
+			}
+
+			if actor.FactionName != nil && *actor.FactionName != "" {
+				a.FactionName = *actor.FactionName
+				Factions[a.name] = hud.NewSolidText(*actor.FactionName, mgl32.Vec3{0.49, 0.81, 1}, fontBold)
+				Factions[a.name].SetScale(0.8)
 			}
 
 			// p := hud.Vec3{-0.24000002, 0.4199995, 0}
@@ -416,7 +428,7 @@ func drawActors() {
 			if name == CurrentSpeaker {
 				actor.SetColorf(1, 1, 1)
 			} else {
-				actor.SetColorf(0.9, 0.9, 0.9)
+				actor.SetColorf(0.7, 0.7, 0.7)
 			}
 
 			// draw the actor
@@ -447,6 +459,9 @@ func drawText(view View) {
 		DrawText(view, dialogue, view.dialogueX, view.dialogueY) // actual text
 		if subjectName != nil {
 			DrawText(view, subjectName, view.speakerX, view.speakerY) // speaker's name
+			if factionName, ok := Factions[CurrentSpeaker]; ok {
+				DrawText(view, factionName, view.speakerX+subjectName.Width()+25, view.speakerY+2) // speaker's name
+			}
 		}
 	}
 	if reply != nil {
@@ -535,10 +550,20 @@ func keyCallback(window *glfw.Window, key glfw.Key, scancode int, action glfw.Ac
 }
 func mouseButtonCallback(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {
 	// log.Printf("mouseButtonCallback: button(%v), action(%v)\n", button, action)
+	cursorX, cursorY := glfw.GetCurrentContext().GetCursorPos()
+	fmt.Printf("cursor pos: (%f %f)\n", cursorX, cursorY)
 
 	if action == glfw.Release {
-		nextDialogue(&status)
+		buttonRect := image.Rectangle{Min: image.Point{X: 1020, Y: 20}, Max: image.Point{X: 1130, Y: 60}}
+		if inside(buttonRect, int(cursorX), int(cursorY)) {
+			AUTO = !AUTO
+		} else {
+			nextDialogue(&status)
+		}
 	}
+}
+func inside(rect image.Rectangle, x, y int) bool {
+	return x >= rect.Min.X && x <= rect.Max.X && y >= rect.Min.Y && y <= rect.Max.Y
 }
 
 func queueEvent(event eventFunc) {
@@ -572,9 +597,16 @@ func nextDialogue(status *chan uint32) {
 		<-time.NewTimer(time.Second).C
 		nextDialogue(status)
 		break
+	case "sfx":
+		if s, ok := Sounds[element.Mood]; ok {
+			fmt.Println("playing sfx:", element.Mood)
+			s.Play()
+			nextDialogue(status)
+		}
+		break
 	case "bgm":
 		if s, ok := Sounds[element.Mood]; ok {
-			fmt.Println("playing sound:", element.Mood)
+			fmt.Println("playing bgm:", element.Mood)
 			if currentBGM != nil {
 				currentBGM.Close()
 			}
@@ -639,6 +671,11 @@ func nextDialogue(status *chan uint32) {
 			if _, ok := Emotes[element.Mood]; ok {
 				if emoteData, ok := Emotes[element.Mood]; ok {
 					charSprite[element.Name].AnimateEmote(element.Mood, emoteData)
+					if s, ok := Sounds[fmt.Sprintf("sfx_%s", element.Mood)]; ok {
+						fmt.Println("playing sfx:", fmt.Sprintf("sfx_%s", element.Mood))
+						s.Play()
+						nextDialogue(status)
+					}
 				} else {
 					fmt.Println("trying to animate with no active animation")
 				}

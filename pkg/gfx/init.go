@@ -60,12 +60,12 @@ func initGlfw(windowWidth, windowHeight int) *glfw.Window {
 func MustInitShader() *Program {
 
 	// the linked shader program determines how the data will be rendered
-	vertShader, err := NewShaderFromFile("shaders/basic.vert", gl.VERTEX_SHADER)
+	vertShader, err := NewShaderFromFile("./resources/shaders/basic.vert", gl.VERTEX_SHADER)
 	if err != nil {
 		panic(err)
 	}
 
-	fragShader, err := NewShaderFromFile("shaders/basic.frag", gl.FRAGMENT_SHADER)
+	fragShader, err := NewShaderFromFile("./resources/shaders/basic.frag", gl.FRAGMENT_SHADER)
 	if err != nil {
 		panic(err)
 	}
@@ -112,7 +112,7 @@ func MustLoadFont(fontName string) *v41.Font {
 		if err != nil {
 			panic(err)
 		}
-		err = config.Save("fontconfigs", fontName)
+		err = config.Save("./resources/fontconfigs", fontName)
 		if err != nil {
 			panic(err)
 		}

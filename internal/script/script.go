@@ -36,6 +36,7 @@ type Metadata struct {
 }
 type ActorMetadata struct {
 	Name              string   `json:"name"`
+	FactionName       *string  `json:"faction_name"`
 	CenterX           float32  `json:"center_x"`
 	CenterY           float32  `json:"center_y"`
 	CenterScale       float32  `json:"center_scale"`

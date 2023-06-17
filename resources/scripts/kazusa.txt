@@ -1,0 +1,28 @@
+[bg - rio - none]
+[akira - 101 - _]
+nani
+[akira - 06 - _]
+[akira - dots - emote]
+[bgm - 47 - none]
+[_ - _ - none]
+(Kazusa needed something)
+[clear - _ - _]
+[kayoko - 90 - _]
+Do I look like the kind of
+[fade - _ - out]
+[kayoko - 90 - move_left]
+[Kazusa - 01 - move_right]
+[fade - _ - in]
+[kazusa - 01 - _]
+Limited edition double cream strawberry shortcake with chocolate truffle topping and golden flakes!!!!!!!!!
+[kazusa - 01 - _]
+Ah I think I'm gonna pass away!!!
+[kayoko - dots - emote]
+[kayoko - 90 - _]
+Why do I always have to get the snacks....
+[kayoko - 04 - _]
+I swear those girls are hopeless.
+[kayoko - 03 - _]
+hmm...?
+[kayoko - 02 - _]
+What's with this line....?
