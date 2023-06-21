@@ -115,7 +115,7 @@ func (s *Text) Width() float32 {
 		txt := s.TextObjects[i]
 		txt.SetString(s.Output[i])
 		t, b := txt.GetBoundingBox()
-		w := b.X - t.X
+		w := (b.X - t.X) * txt.Scale
 		// h := b.Y - t.Y
 		if w > max {
 			max = w

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"unsafe"
 
-	"github.com/BlunterMonk/opengl/pkg/gfx"
+	"github.com/BlunterMonk/our_archive/pkg/gfx"
 	"github.com/go-gl/gl/v4.1-core/gl"
 )
 
@@ -44,7 +44,6 @@ type Sprite struct {
 	scale         float32
 	overlayColor  Vec3
 	position      Vec3
-	center        Vec3 // used as the "default position" when reseting the sprite's position
 }
 
 func NewSprite() *Sprite {
@@ -58,7 +57,7 @@ func NewSprite() *Sprite {
 	}
 }
 
-func NewSpriteFromFile(filename string) *Sprite {
+func NewSpriteFromFile(filename string) (*Sprite, error) {
 
 	if SpriteVAO == 0 {
 		SpriteVAO = gfx.CreateVAO(squareVerts, squareInds)
@@ -66,7 +65,8 @@ func NewSpriteFromFile(filename string) *Sprite {
 
 	t, err := gfx.NewTextureFromFile(filename, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
 	if err != nil {
-		panic(err.Error())
+		fmt.Println(err.Error())
+		t, _ = gfx.NewTextureFromFile("./resources/ui/missing.png", gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
 	}
 
 	textures := make(map[string]*gfx.Texture, 0)
@@ -79,14 +79,14 @@ func NewSpriteFromFile(filename string) *Sprite {
 		overlayColor:  Vec3{1, 1, 1},
 		alpha:         1,
 		scale:         1,
-	}
+	}, err
 }
 
-func (s *Sprite) LoadTexture(key, filename string) {
+func (s *Sprite) LoadTexture(key, filename string) error {
 
 	if _, ok := s.textures[key]; ok {
 		// avoid loading textures that already exist
-		return
+		return nil
 	}
 
 	if SpriteVAO == 0 {
@@ -95,10 +95,12 @@ func (s *Sprite) LoadTexture(key, filename string) {
 
 	t, err := gfx.NewTextureFromFile(filename, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
 	if err != nil {
-		panic(err.Error())
+		fmt.Println(err.Error())
+		t, _ = gfx.NewTextureFromFile("./resources/ui/missing.png", gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
 	}
 
 	s.textures[key] = t
+	return err
 }
 
 func (s *Sprite) getActiveTexture() *gfx.Texture {
@@ -130,11 +132,6 @@ func (s *Sprite) SetScale(n float32) {
 }
 func (s *Sprite) GetScale() float32 {
 	return s.scale
-}
-
-func (s *Sprite) SetCenter(x, y, scale float32) {
-	s.position = Vec3{x, y, 0}
-	s.scale = scale
 }
 
 func (s *Sprite) SetPositionf(x, y, z float32) {

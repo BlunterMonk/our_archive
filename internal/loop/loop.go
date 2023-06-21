@@ -3,7 +3,6 @@
 package loop
 
 import (
-	"fmt"
 	"runtime"
 	"time"
 )
@@ -47,12 +46,12 @@ F:
 			start = now
 			code := g.onUpdate(delta)
 			if code == -1 {
-				fmt.Println("stopping loop")
+				// fmt.Println("stopping loop")
 				t.Stop()
 				// g.Stop()
 				break F
 			} else if code > 0 {
-				fmt.Println("resetting ticker:", code)
+				// fmt.Println("resetting ticker:", code)
 				t.Reset(time.Duration(code))
 			}
 			// case <-g.Quit:

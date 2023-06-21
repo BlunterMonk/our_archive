@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	ScriptMarkerRegexFormat = `^\[([?a-zA-Z0-9_]+)\s-\s([a-zA-Z0-9_]+)\s-\s([_a-zA-Z0-9]+)\]$`
+	ScriptMarkerRegexFormat = `^\[([?a-zA-Z0-9_]+)\s-\s([a-zA-Z0-9_]+)\s-\s([_a-zA-Z0-9*'\s".]+)\]$`
 	// format: [subject - category - action]
 	// ScriptMarkerRegexFormat = `^\[([a-zA-Z0-9]+)\s-\s([a-z0-9]+)\s-\s([a-z]+)\]$`
 )
@@ -49,12 +49,13 @@ type AnimationMetadata struct {
 	Frames []FrameMetadata `json:"frames"`
 }
 type FrameMetadata struct {
-	X     *float32 `json:"x"`
-	Y     *float32 `json:"y"`
-	AddX  *float32 `json:"add_x"`
-	AddY  *float32 `json:"add_y"`
-	Delay *float32 `json:"delay"`
-	Reset bool     `json:"reset"`
+	X      *float32 `json:"x"`
+	Y      *float32 `json:"y"`
+	AddX   *float32 `json:"add_x"`
+	AddY   *float32 `json:"add_y"`
+	Delay  *float32 `json:"delay"`
+	Reset  bool     `json:"reset"`
+	Center bool     `json:"center"`
 }
 type EmoteMetadata struct {
 	Name  string  `json:"name"`
@@ -94,23 +95,30 @@ func LoadScript(filename string) []ScriptElement {
 		match := validID.MatchString(row)
 		if match {
 			index++
-			log.Printf("Dialogue Count[%v]: %v\n", index, row)
+			// log.Printf("Dialogue Count[%v]: %v\n", index, row)
 
 			values := validID.FindAllStringSubmatch(row, -1)
-			name := values[0][1]
-			category := values[0][2]
+			name := strings.ToLower(values[0][1])
+			category := strings.ToLower(values[0][2])
+
 			action := values[0][3]
+			switch name {
+			case "defect":
+				break
+			default:
+				action = strings.ToLower(action)
+			}
 
 			lines = append(lines, ScriptElement{
 				Index:  index,
-				Name:   strings.ToLower(name),
-				Mood:   strings.ToLower(category),
-				Action: strings.ToLower(action),
+				Name:   name,
+				Mood:   category,
+				Action: action,
 				Lines:  make([]string, 0),
 			})
 
 		} else {
-			log.Printf("Dialogue Text[%v]: %v\n", index, row)
+			// log.Printf("Dialogue Text[%v]: %v\n", index, row)
 
 			lines[index].Line = lines[index].Line + row
 			lines[index].Lines = append(lines[index].Lines, row)
@@ -149,4 +157,8 @@ func (s *Script) Elements() []ScriptElement {
 
 func (s *ScriptElement) ToString() string {
 	return fmt.Sprintf("[%v - %v - %v]: %v", s.Name, s.Mood, s.Action, s.Line)
+}
+
+func (s *ScriptElement) HasDialogue() bool {
+	return s.Line != "" || len(s.Lines) > 0
 }

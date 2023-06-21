@@ -1,10 +1,11 @@
 package sfx
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/faiface/beep"
+	"github.com/faiface/beep/effects"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
 )
@@ -12,10 +13,14 @@ import (
 type Streamer struct {
 	beep.StreamSeekCloser
 
+	controller *effects.Volume
+
 	data   []byte
 	format beep.Format
 	done   chan bool
 	file   *os.File
+	Base   float64
+	Silent bool
 }
 
 func Init() error {
@@ -32,22 +37,22 @@ func Init() error {
 	return speaker.Init(44100, 1500) //s.format.SampleRate.N(time.Second/30))
 }
 
-func NewStreamer(filename string) *Streamer {
+func NewStreamer(filename string) (*Streamer, error) {
 	body, err := os.ReadFile(filename)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	f, err := os.Open(filename)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	// defer f.Close()
 
 	// buff := io.NopCloser(bytes.NewReader(body))
 	streamer, format, err := mp3.Decode(f)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("invalid mp3 file: %s", filename)
 	}
 
 	return &Streamer{
@@ -56,10 +61,12 @@ func NewStreamer(filename string) *Streamer {
 		data:             body,
 		format:           format,
 		done:             make(chan bool),
-	}
+		Base:             2,
+		Silent:           false,
+	}, nil
 }
 
-func (s *Streamer) Play() {
+func (s *Streamer) Play(volume float64) {
 	speaker.Lock()
 	// reinitialize the streamer so that we don't have to keep the file open
 	// buff := io.NopCloser(bytes.NewReader(s.data))
@@ -72,13 +79,17 @@ func (s *Streamer) Play() {
 	// @TODO: find out if there's a way to seek from a buffer
 	s.Seek(0)
 	speaker.Unlock()
-	speaker.Play(s)
-	// speaker.Play(beep.Seq(Sounds["54"], beep.Callback(func() {
-	// done <- true
-	// })))
+
+	s.controller = &effects.Volume{
+		Streamer: s.StreamSeekCloser,
+		Base:     s.Base,
+		Volume:   volume,
+		Silent:   s.Silent,
+	}
+	speaker.Play(s.controller)
 }
 
-func (s *Streamer) PlayOnRepeat() {
+func (s *Streamer) PlayOnRepeat(volume float64) {
 	speaker.Lock()
 	// reinitialize the streamer so that we don't have to keep the file open
 	// buff := io.NopCloser(bytes.NewReader(s.data))
@@ -89,7 +100,16 @@ func (s *Streamer) PlayOnRepeat() {
 	// s.StreamSeekCloser = streamer
 	s.Seek(0)
 	speaker.Unlock()
-	speaker.Play(beep.Loop(-1, s.StreamSeekCloser))
+
+	// @TODO: this is digsuting, come up with a way to fix it
+	ctrl := &beep.Ctrl{Streamer: beep.Loop(-1, s.StreamSeekCloser), Paused: false}
+	s.controller = &effects.Volume{
+		Streamer: ctrl,
+		Base:     s.Base,
+		Volume:   volume,
+		Silent:   s.Silent,
+	}
+	speaker.Play(s.controller)
 }
 
 func Stop() {
@@ -98,9 +118,17 @@ func Stop() {
 
 func (s *Streamer) Release() {
 	s.Close()
-	// s.done <- true
 }
 
 func Close() {
 	speaker.Close()
+}
+
+func (s *Streamer) SetVolume(volume float64) {
+	if s.controller != nil {
+		speaker.Lock()
+		s.controller.Volume = volume
+		speaker.Unlock()
+		fmt.Println("bgm volume:", s.controller.Volume)
+	}
 }

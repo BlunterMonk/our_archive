@@ -1,8 +1,8 @@
 package hud
 
 import (
-	"github.com/BlunterMonk/opengl/internal/loop"
-	"github.com/BlunterMonk/opengl/pkg/gfx"
+	"github.com/BlunterMonk/our_archive/internal/loop"
+	"github.com/BlunterMonk/our_archive/pkg/gfx"
 )
 
 type Animation struct {

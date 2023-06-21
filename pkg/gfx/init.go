@@ -88,7 +88,7 @@ func MustLoadFont(fontName string) *v41.Font {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println("Font loaded from disk...")
+		// fmt.Println("Font loaded from disk...")
 	} else {
 		fd, err := os.Open(fmt.Sprintf("./resources/font/%v.ttf", fontName))
 		if err != nil {

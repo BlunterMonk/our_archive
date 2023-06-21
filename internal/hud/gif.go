@@ -5,7 +5,7 @@ import (
 	"image/gif"
 	"time"
 
-	"github.com/BlunterMonk/opengl/pkg/gfx"
+	"github.com/BlunterMonk/our_archive/pkg/gfx"
 	"github.com/go-gl/gl/v4.1-core/gl"
 )
 
@@ -25,6 +25,8 @@ type AnimatedSprite struct {
 	// and implies that each frame's disposal method is 0 (no disposal
 	// specified).
 	disposal []byte
+	// the duration of the animation
+	duration time.Duration
 }
 
 func NewAnimatedSpriteFromFile(filename string) *AnimatedSprite {
@@ -43,9 +45,14 @@ func NewAnimatedSpriteFromFile(filename string) *AnimatedSprite {
 		textures[fmt.Sprint(ind)] = t
 	}
 
-	fmt.Println("created animation with textures:", len(textures))
-	fmt.Println(textures)
-	fmt.Println("----------------------------")
+	var duration int
+	for _, v := range templateGif.Delay {
+		duration += v
+	}
+
+	// fmt.Println("created animation with textures:", len(textures))
+	// fmt.Println(textures)
+	// fmt.Println("----------------------------")
 
 	return &AnimatedSprite{
 		Sprite: &Sprite{
@@ -60,6 +67,7 @@ func NewAnimatedSpriteFromFile(filename string) *AnimatedSprite {
 		loopCount: templateGif.LoopCount,
 		delay:     append(make([]int, 0), templateGif.Delay...),
 		disposal:  append(make([]byte, 0), templateGif.Disposal...),
+		duration:  (time.Duration(duration) * time.Millisecond * 10),
 	}
 }
 
@@ -100,4 +108,8 @@ func (a *AnimatedSprite) DrawFrame(frame int, position Vec3, shader *gfx.Program
 	// draw the current texture
 	current := a.textures[fmt.Sprint(frame)]
 	a.drawTexture(transform, shader, current)
+}
+
+func (a *AnimatedSprite) GetDuration() time.Duration {
+	return a.duration
 }
