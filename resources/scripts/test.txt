@@ -1,17 +1,31 @@
-[fade - _ - out]
 [bg - trinity_clubroom - none]
+[??? - _ - _]
+So you've come...
+[seia - rename - ???]
+[seia - defect - _]
+[seia - 00 - _]
+[seia - silhouette - _]
+It seems your curiosity was peaked.
+[seia - rename - seia]
+[seia - defect - tEa pArTy]
+[seia - fade - in]
+This is a journey, into sound....
+[bgm - play - theme_54]
+[bgm - fade - in]
+[fade - white - out]
 [mika - 00 - set_left]
 [seia - 00 - set_right]
-[fade - _ - in]
-[bgm - theme_54 - _]
+[fade - white - in]
 [seia - 00 - move_left]
 ....Mika?
 [mika - 05 - bounce]
-[mika - dots - emote]
+[mika - emote - dots]
 Oh.... you're approaching me?
 [mika - 15 - _]
-....Instead of running away you're coming closer?
+....Instead of running away you're coming straight towards me?
+[bgm - pause - _]
 [seia - 01 - _]
 I can't kiss the shit out of you unless I get closer
+[bgm - resume - _]
 [mika - 03 - _]
 Hoho... then... come as close as you'd like!

@@ -1,0 +1,81 @@
+[bg - trinity_campus - _]
+[bgm - theme_54 - _]
+[momoka - 00 - near_left]
+[sumomo - 01 - near_right]
+[momoka - 12 - near_left]
+Sensei I want some chips...
+[sumomo - 00 - _]
+Sensei do you have games on your phone?
+[sensei - _ - _]
+"I'm losing my mind"
+[momoka - 11 - _]
+Aren't you just being a coward
+[sensei - _ - _]
+"What kind of chips do you want..."
+"...do you like 'snack assault'?"
+[momoka - 10 - _]
+mmmmm actually can you throw in some Ramune too?
+[sumomo - 02 - _]
+Oh! I would love some chocolate strawberries right now!
+[sensei - _ - _]
+"Schale isn't a delivery service...."
+[momoka - 08 - _]
+But Sensei.... isn't it your job to support your precious students?
+[sumomo - 03 - _]
+Yeah c'mon Sensei, feed us we're staaaaaarving!
+[sensei - _ - _]
+".....let's find a family restaurant then."
+[all - dots - emote]
+[font - size - 0.65]
+[momoka - 04 - _]
+This Sensei.... lol.
+[sumomo - 04 - _]
+Well... let's just play along for now
+[sensei - _ - _]
+"Girls....?"
+[font - size - reset]
+[momoka - 11 - _]
+Thanks Sensei, let's go!
+[bg - family_restaurant - _]
+[clear - _ - _]
+[waitress - _ - _]
+One adult and two children is it?
+[waitress - _ - _]
+Your twins are so cute! ...how old are you lil missy?
+[sensei - _ - _]
+"Uhh... well they---"
+[momoka - 00 - near_left]
+[sumomo - 03 - near_right]
+Daddy hurry!!! I'm Hungry!!!!
+[momoka - 11 - _]
+Father I beg of you, our little fragile frames require food!
+[waitress - _ - _]
+Haha what fun little girls you have!
+[sensei - _ - _]
+"Like I said they're not--"
+[waitress - _ - _]
+Your table is ready, please follow me.
+[iroha - 06 - _]
+......Sensei said I'm the best face warmer in Kivotos..... I just wish he would stop passing out.
+[iroha - 03 - _]
+Sensei do you really love me... or are you just a lolicon?
+[sensei - _ - _]
+"I'm an Iroha-con"
+[iroha - 04 - _]
+what the heck...
+[iroha - 07 - _]
+Sensei you perv
+[bg - trinity_clubroom - none]
+[mika - 00 - set_left]
+[seia - 00 - set_right]
+[seia - 00 - move_left]
+....Mika?
+[mika - 05 - bounce]
+[mika - dots - emote]
+Oh.... you're approaching me?
+[mika - 15 - _]
+....Instead of running away you're coming closer?
+[seia - 01 - _]
+I can't kiss the shit out of you unless I get closer
+[mika - 03 - _]
+Hoho... then... come as close as you'd like!

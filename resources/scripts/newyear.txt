@@ -1,78 +1,78 @@
-[bg - trinity_campus - none]
-[bgm - 54 - none]
-[_ - _ - none]
+[bg - trinity_campus - _]
+[bgm - 54 - _]
+[_ - _ - _]
 (Mika called me early in the morning to meet her, it sounded pretty urgent.)
 [clear - _ - _]
 [mika - 07 - move_center]
 SEEEEEENSEEEEEEI!!!!!
 [mika - 11 - _]
 I need your help!!!
-[sensei - _ - none]
+[sensei - _ - _]
 "What's wrong!?"
-[mika - 02 - none]
+[mika - 02 - _]
 Well you see.... it's almost time for new years right?
-[mika - 00 - none]
+[mika - 00 - _]
 I really want to use this chance to show my thanks to Seia-chan!
-[mika - 05 - none]
+[mika - 05 - _]
 She's done so much for me and I...
-[mika - 02 - none]
+[mika - 02 - _]
 I feel like I have to do something!
-[mika - 03 - none]
+[mika - 03 - _]
 She's been so kind to me, even after all I did....
-[mika - 14 - none]
+[mika - 14 - _]
 And she's been through a lot, I want to make it up to her.
-[mika - 02 - none]
+[mika - 02 - _]
 And so... I want you to help me throw a new years party!
-[sensei - _ - none]
+[sensei - _ - _]
 "Naruhodo, that sounds like a great idea"
-[mika - 09 - none]
+[mika - 09 - _]
 And so I need you to help me gather supplies
-[mika - 03 - none]
+[mika - 03 - _]
 And most importantly, a gift!
-[sensei - _ - none]
+[sensei - _ - _]
 "A gift huh, any ideas?"
 [mika - 07 - _]
 That's the problem...!
-[mika - 08 - none]
+[mika - 08 - _]
 I have no idea what she could want....
-[mika - 06 - none]
+[mika - 06 - _]
 I think she likes books... she's always spouting some complicated mumbo jumbo...
-[mika - 10 - none]
+[mika - 10 - _]
 But who would want books as a gift, that's so boring!
-[mika - 05 - none]
+[mika - 05 - _]
 Maybe some new clothes?
-[mika - 02 - none]
+[mika - 02 - _]
 Her sleeves don't fit at all right?
-[sensei - _ - none]
+[sensei - _ - _]
 "Eh? Isn't that just fashion...?"
-[mika - 06 - none]
+[mika - 06 - _]
 ....hmmmmm
-[sensei - _ - none]
+[sensei - _ - _]
 "What about a new gun or something?"
-[mika - 10 - none]
+[mika - 10 - _]
 Hahaha I can't remember the last time I saw her shoot!
 [mika - 02 - _]
 Come to think of it, what kind of gun does she have anyway....
 [mika - 03 - _]
 You can do it Sensei!
-[mika - 03 - none]
+[mika - 03 - _]
 Just think about something a teenage girl would love to have.
-[sensei - _ - none]
+[sensei - _ - _]
 "....How about we shop around for now?"
-[none - _ - none]
-[sensei - _ - none]
+[none - _ - _]
+[sensei - _ - _]
 "Maybe something will pop out?"
-[mika - 07 - none]
+[mika - 07 - _]
 Stumped already?!
-[mika - 05 - none]
+[mika - 05 - _]
 Well so am I, so that sounds good to me!!
-[mika - 10 - none]
+[mika - 10 - _]
 Let'sa gooooo!
 [clear - _ - _]
 [bg - trinity_street_xmas - _]
 [mika - 02 - enter_left]
 Ok, where to first....
-[mika - 03 - none]
+[mika - 03 - _]
 Oh! Look there's a bakery!
 [mika - 03 - exit_right]
 [clear - _ - _]
