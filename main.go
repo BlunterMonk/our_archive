@@ -58,6 +58,7 @@ var (
 	MinBgmVolume     = float64(-10)
 	CurrentSfxVolume = float64(1)
 	DefaultFontSize  = 0.85
+	FPS              int
 
 	Script *script.Script
 	// Metadata        *script.Metadata
@@ -422,6 +423,7 @@ func releaseResources() {
 	Sounds = make(map[string]*sfx.Streamer)
 	Sprites = make(map[string]*hud.Sprite)
 	Fonts = make(map[string]*v41.Font)
+	dialogueIndex = -1
 }
 
 func loadGame(view View, scriptName string) {
@@ -449,8 +451,6 @@ func loadGame(view View, scriptName string) {
 		close(EventChannel)
 	}()
 }
-
-var spinner *hud.Animation
 
 func runGame(CurrentViewConfig View, scriptName string) {
 	var xCode int
@@ -489,11 +489,9 @@ func runGame(CurrentViewConfig View, scriptName string) {
 		}
 	}()
 
-	// mustLoadSystemResources(CurrentViewConfig)
-
-	// load system sounds
+	// load loading screen first
 	logo, _ := hud.NewSpriteFromFile("./resources/ui/splash.jpeg")
-	spinner = hud.NewAnimation("spinner", hud.NewAnimatedSpriteFromFile("./resources/ui/spinrona.gif"))
+	spinner := hud.NewAnimation("spinner", hud.NewAnimatedSpriteFromFile("./resources/ui/spinrona.gif"))
 	spinner.SetPositionf(0, -0.45, 0)
 	spinner.SetScale(0.3)
 	spinner.AnimateForever()
@@ -504,8 +502,8 @@ func runGame(CurrentViewConfig View, scriptName string) {
 	var delay time.Timer
 	var debugText *hud.Text
 	var debugString string
+	var counter int
 	loadErrors := make([]error, 0)
-	counter := 0
 F:
 	for {
 		if window.ShouldClose() {
@@ -513,16 +511,10 @@ F:
 		}
 
 		gl.Clear(gl.COLOR_BUFFER_BIT)
-		// mtx.Lock()
-		// for _, v := range EventQueue {
-		// 	v(dialogue)
-		// }
-		// EventQueue = make([]eventFunc, 0)
-		// loadResource(<-EventChannel)
-		// mtx.Unlock()
 
 		select {
 		case <-ft:
+			FPS = counter
 			counter = 0
 
 		case d, ok := <-DebugChannel:
@@ -534,22 +526,6 @@ F:
 				debugString = d
 			}
 			break
-
-		// case le, ok := <-EventChannel:
-		// 	// fmt.Println("event channel")
-		// 	if ok {
-		// 		// if !LOADING {
-		// 		// 	LOADING = true
-		// 		// }
-		// 		fmt.Println("loading:", le)
-		// 		loadResource(le)
-		// 	} else if LOADING {
-		// 		LOADING = false
-		// 		fmt.Println("load complete")
-		// 		for i := range EventChannel {
-		// 			fmt.Printf("flushing %v\n", i)
-		// 		}
-		// 	}
 
 		// events must be handled on the main thread if they interact with OpenGL
 		// this is a limitation on the OpenGL system where it will panic if changes are made by different threads
@@ -737,19 +713,19 @@ func drawText(view View) {
 		DrawText(view, reply[1], (float32(view.WindowWidth)/2)-(reply[0].Width()/2)+25, 330)
 	}
 	if DEBUG {
-		if s, ok := charSprite[CurrentSpeaker]; ok {
-			p := s.GetPosition()
-			var text string
-			if sprite, ok := charSprite[CurrentSpeaker]; ok {
-				emoteOffset := sprite.GetPosition().Sub(Sprites[spriteEmoteBalloon].GetPosition())
-				text = fmt.Sprintf("position: (%f, %f)\nscale: (%f)\nemote offset from %s: (%f, %f)\nVolume: (%f)", p.X(), p.Y(), s.GetScale(), CurrentSpeaker, emoteOffset.X(), emoteOffset.Y(), CurrentBgmVolume)
-			} else {
-				text = fmt.Sprintf("position: (%f, %f)\nscale: (%f)\nVolume: (%f)", p.X(), p.Y(), s.GetScale(), CurrentBgmVolume)
-			}
-			pos := hud.NewSolidText(text, hud.COLOR_WHITE, Fonts[fontRegular])
-			pos.SetScale(2)
-			DrawText(view, pos, 0, 0)
+		var text []string
+		text = append(text, fmt.Sprintf("FPS: %d", FPS))
+		text = append(text, fmt.Sprintf("Volume: (%f)", CurrentBgmVolume))
+		if sprite, ok := charSprite[CurrentSpeaker]; ok {
+			p := sprite.GetPosition()
+			emoteOffset := p.Sub(Sprites[spriteEmoteBalloon].GetPosition())
+			text = append(text, fmt.Sprintf("position: (%f, %f)", p.X(), p.Y()))
+			text = append(text, fmt.Sprintf("scale: (%f)", sprite.GetScale()))
+			text = append(text, fmt.Sprintf("emote offset from %s: (%f, %f)", CurrentSpeaker, emoteOffset.X(), emoteOffset.Y()))
 		}
+		pos := hud.NewSolidText(strings.Join(text, "\n"), hud.COLOR_WHITE, Fonts[fontRegular])
+		pos.SetScale(2)
+		DrawText(view, pos, 0, 0)
 	}
 }
 func drawOverlays() {
@@ -888,13 +864,6 @@ func nextDialogue(status *chan uint32) {
 		}
 		nextDialogue(status)
 		break
-	// case "emote":
-	// 	// @TODO: shortcut
-	// 	copy := element
-	// 	copy.Action = "emote"
-	// 	copy.Name = element.Action
-	// 	prepareActor(status, copy)
-	// 	break
 	case "clear":
 		clear()
 		nextDialogue(status)
