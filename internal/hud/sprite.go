@@ -49,7 +49,7 @@ type Sprite struct {
 func NewSprite() *Sprite {
 	return &Sprite{
 		vbo:          SpriteVAO,
-		textures:     map[string]*gfx.Texture{},
+		textures:     make(map[string]*gfx.Texture, 0),
 		ULOC:         "ourTexture0",
 		overlayColor: Vec3{1, 1, 1},
 		alpha:        1,
@@ -59,10 +59,6 @@ func NewSprite() *Sprite {
 
 func NewSpriteFromFile(filename string) (*Sprite, error) {
 
-	if SpriteVAO == 0 {
-		SpriteVAO = gfx.CreateVAO(squareVerts, squareInds)
-	}
-
 	t, err := gfx.NewTextureFromFile(filename, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -70,16 +66,20 @@ func NewSpriteFromFile(filename string) (*Sprite, error) {
 	}
 
 	textures := make(map[string]*gfx.Texture, 0)
-	textures["_"] = t
+	textures["default"] = t
 	return &Sprite{
 		vbo:           SpriteVAO,
-		activeTexture: "_",
+		activeTexture: "default",
 		textures:      textures,
 		ULOC:          "ourTexture0",
 		overlayColor:  Vec3{1, 1, 1},
 		alpha:         1,
 		scale:         1,
 	}, err
+}
+
+func (s *Sprite) AddTexture(key string, texture *gfx.Texture) {
+	s.textures[key] = texture
 }
 
 func (s *Sprite) LoadTexture(key, filename string) error {
@@ -89,14 +89,14 @@ func (s *Sprite) LoadTexture(key, filename string) error {
 		return nil
 	}
 
-	if SpriteVAO == 0 {
-		SpriteVAO = gfx.CreateVAO(squareVerts, squareInds)
-	}
-
 	t, err := gfx.NewTextureFromFile(filename, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
 	if err != nil {
 		fmt.Println(err.Error())
 		t, _ = gfx.NewTextureFromFile("./resources/ui/missing.png", gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
+	}
+
+	if s.activeTexture == "" {
+		s.activeTexture = key
 	}
 
 	s.textures[key] = t
@@ -117,6 +117,9 @@ func (s *Sprite) Height() float32 {
 
 func (s *Sprite) SetColorf(r, g, b float32) {
 	s.overlayColor = Vec3{r, g, b}
+}
+func (s *Sprite) GetColor() Vec3 {
+	return s.overlayColor
 }
 
 func (s *Sprite) GetAlpha() float32 {

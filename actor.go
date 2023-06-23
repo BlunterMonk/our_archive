@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/BlunterMonk/our_archive/internal/hud"
 	"github.com/BlunterMonk/our_archive/pkg/gfx"
 )
@@ -16,6 +14,8 @@ type Actor struct {
 	emoteAnimation *hud.Animation
 	centerPosition hud.Vec3
 	centerScale    float32
+
+	Faded bool
 }
 type animation struct {
 	start     *hud.Vec3
@@ -24,18 +24,26 @@ type animation struct {
 	emoteName string
 }
 
-func NewActor(name string) (*Actor, error) {
-	sprite, err := hud.NewSpriteFromFile(fmt.Sprintf("./resources/actor/%s/%s-00.png", name, name))
+func NewActor(name string) *Actor {
 	return &Actor{
 		name:         name,
-		Sprite:       sprite,
+		Sprite:       hud.NewSprite(),
 		emoteOffsets: make(map[string]hud.Vec3),
-	}, err
+	}
 }
 
 func (a *Actor) AddEmoteData(name string, offset hud.Vec3) {
 	// fmt.Println("adding emote data for:", name, offset)
 	a.emoteOffsets[name] = offset
+}
+
+func (a *Actor) AddSpriteData(mood string, texture *gfx.Texture) {
+	a.Sprite.AddTexture(mood, texture)
+}
+
+func (a *Actor) SetTexture(key string, texture *gfx.Texture) error {
+	a.Sprite.AddTexture(key, texture)
+	return a.Sprite.SetActiveTexture(key)
 }
 
 func (a *Actor) AnimateEmote(name string, emoteData *hud.AnimatedSprite, callback func()) {

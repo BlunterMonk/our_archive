@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	ScriptMarkerRegexFormat = `^\[([?a-zA-Z0-9_]+)\s-\s([a-zA-Z0-9_]+)\s-\s([_a-zA-Z0-9*'\s".]+)\]$`
+	ScriptMarkerRegexFormat = `^\[([?a-zA-Z0-9_]+)\s-\s([a-zA-Z0-9_]+)\s-\s([_a-zA-Z0-9-*'\s".?!]+)\]$`
 	// format: [subject - category - action]
 	// ScriptMarkerRegexFormat = `^\[([a-zA-Z0-9]+)\s-\s([a-z0-9]+)\s-\s([a-z]+)\]$`
 )
@@ -102,10 +102,7 @@ func LoadScript(filename string) []ScriptElement {
 			category := strings.ToLower(values[0][2])
 
 			action := values[0][3]
-			switch name {
-			case "defect":
-				break
-			default:
+			if name != "defect" && category != "defect" {
 				action = strings.ToLower(action)
 			}
 

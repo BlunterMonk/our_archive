@@ -7,6 +7,8 @@ import (
 	"math"
 	"os"
 
+	"github.com/BlunterMonk/our_archive/pkg/gfx"
+	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/ungerik/go3d/mat4"
 	v2 "github.com/ungerik/go3d/vec2"
 	v3 "github.com/ungerik/go3d/vec3"
@@ -110,4 +112,20 @@ func loadGif(filename string) *gif.GIF {
 	}
 
 	return templateImg
+}
+
+func Init() {
+	if SpriteVAO == 0 {
+		SpriteVAO = gfx.CreateVAO(squareVerts, squareInds)
+	}
+}
+
+func LoadTexture(filename string) (*gfx.Texture, error) {
+	t, err := gfx.NewTextureFromFile(filename, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
+	if err != nil {
+		fmt.Println(err.Error())
+		t, _ = gfx.NewTextureFromFile("./resources/ui/missing.png", gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE)
+	}
+
+	return t, err
 }

@@ -14,6 +14,7 @@ type Streamer struct {
 	beep.StreamSeekCloser
 
 	controller *effects.Volume
+	ctrl       *beep.Ctrl
 
 	data   []byte
 	format beep.Format
@@ -80,6 +81,7 @@ func (s *Streamer) Play(volume float64) {
 	s.Seek(0)
 	speaker.Unlock()
 
+	s.ctrl = nil
 	s.controller = &effects.Volume{
 		Streamer: s.StreamSeekCloser,
 		Base:     s.Base,
@@ -102,9 +104,9 @@ func (s *Streamer) PlayOnRepeat(volume float64) {
 	speaker.Unlock()
 
 	// @TODO: this is digsuting, come up with a way to fix it
-	ctrl := &beep.Ctrl{Streamer: beep.Loop(-1, s.StreamSeekCloser), Paused: false}
+	s.ctrl = &beep.Ctrl{Streamer: beep.Loop(-1, s.StreamSeekCloser), Paused: false}
 	s.controller = &effects.Volume{
-		Streamer: ctrl,
+		Streamer: s.ctrl,
 		Base:     s.Base,
 		Volume:   volume,
 		Silent:   s.Silent,
@@ -129,6 +131,23 @@ func (s *Streamer) SetVolume(volume float64) {
 		speaker.Lock()
 		s.controller.Volume = volume
 		speaker.Unlock()
-		fmt.Println("bgm volume:", s.controller.Volume)
+	}
+}
+
+func (s *Streamer) GetVolume() float64 {
+	if s.controller != nil {
+		return s.controller.Volume
+	}
+	return 0
+}
+
+func (s *Streamer) Resume() {
+	if s.ctrl != nil {
+		s.ctrl.Paused = false
+	}
+}
+func (s *Streamer) Pause() {
+	if s.ctrl != nil {
+		s.ctrl.Paused = true
 	}
 }

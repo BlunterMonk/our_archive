@@ -18,6 +18,8 @@ the character speaking will be in control
 arrow keys: move around
 s: shrink
 b: get bigger
+arrow keys: move the active character
+JKLI: move the emote bubble
 
 the position and scale of the character will show on screen, once you're happy with the values, put them into the settings.json file.
 
@@ -94,16 +96,41 @@ A script is compromised of two parts, an action and dialogue
 an action can be many things, these are the supported formats:
 
 A character speaking
-characteR_name: can be any name, this name will be used to match any sprite settings defined in the settings.json file
-expression: The expressions are considered numeric values based on the character name. (i.e. mika-01, mika-02)
-animation: the name of the animation you want to play with this dialogue, the animations are defined in the settings.json file
-[<character_name> - <expression> - <animation>]
+<character_name>: can be any name, this name will be used to match any sprite settings defined in the settings.json file
+<expression>: The expressions are considered numeric values based on the character name. (i.e. mika-01, mika-02)
+<animation>: the name of the animation you want to play with this dialogue, the animations are defined in the settings.json file
+
+[<character_name> - <expression/action> - <animation_name/action_name>]
 <dialogue>
+
+NOTE: if no action is given, it defaults to animation, this is a shortcut so you can change expression and animate in one call
+list of predefined actions:
+[<character_name> - <expression> - <animation_name>] = [<character_name> - animation - <animation_name>]
+[<character_name> - emote - <emote_name>] play an emote for the character
+[<character_name> - fade - in] fade FROM black TO full color
+[<character_name> - fade - out] fade TO black FROM full color
+[<character_name> - silhouette - _] set a characters sprite to a silhouette
+[<character_name> - full - _] set a character to full color without fade
+[<character_name> - rename - _] change a character's name temporarily during a cutscene, DONT FORGET TO CHANGE IT. This will ONLY change the DISPLAYED name, to control the character, continue using their normal name for <character_name>
+[<character_name> - defect - <new_affiliation>] change a character's affiliation
+[<character_name> - defect - _] remove a character's affiliation completely
+
+ANYTHING OTHER THAN A PREDEFINED ACTION WILL BE CONSIDERED A SPRITE EXPRESSION
 
 example:
 ```
 [seia - 02 - move_left]
 ....Mika?
+```
+another example:
+```
+[mika - 05 - dance]
+[mika - emote - heart]
+```
+another example:
+```
+[airi - fade - in]
+[airi - 06 - move_right]
 ```
 
 Sensei: you can add the little chat options for sensei's dialogue with this, supports up to two options
@@ -121,9 +148,10 @@ or
 "And this is your second option"
 ```
 
-You can use the word "all" to apply the command to all characters.
+You can use the word "all" to apply the command to all characters on screen.
+All the rules of the character command apply here.
 This will highlight all characters on screen, and apply any emotes, animations, and dialogue for all of them at once.
-[all - _ - <animation/emote>]
+[all - <action> - <animation_name>]
 <dialogue>
 example:
 ```
@@ -132,7 +160,7 @@ Good morning Sensei
 ```
 another example:
 ```
-[all - _ - dots]
+[all - emote - dots]
 ```
 
 this will change the background being used
@@ -142,10 +170,19 @@ example:
 [bg - trinity_clubroom - _]
 ```
 
+BGM: only mp3 files are supported currently
 change the bgm playing:
-NOTE: only mp3 files are supported currently
-[bgm - <bgm_name> - _]
-example:
+
+[bgm - play - <bgm_name>] play a bgm
+example of shortcut:
+```
+[bgm - play - theme_54]
+```
+[bgm - pause - _] to pause the bgm 
+[bgm - resume - _] to continue the bgm 
+[bgm - fade - in] fade bgm in
+[bgm - fade - out] fade bgm out
+example of shortcut:
 ```
 [bgm - theme_54 - _]
 ```
@@ -157,22 +194,27 @@ example:
 [sfx - sfx_chat - _]
 ```
 
+Screen fade, if no color is given it defaults to black
 screen fade to black:
-[fade - _ - in]
-[fade - _ - out]
+[fade - black - in]
+[fade - black - out]
+
+screen fade to white:
+[fade - white - in]
+[fade - white - out]
 
 play an emote for the character instead of changing the expression
 NOTE: emote settings are defined in the settings.json, mainly to dictate the position each emote should display on a characters. since every character might have a slightly different position
-[<character_name> - <emote_name> - emote]
+[<character_name> - <emote> - <emote>]
 example:
 ```
-[seia - dots - emote]
+[seia - emote - dots]
 ```
 This is kind of a current limitation so the script will become a little bulky. If you want to change the character's expression AND play an emote at the same time you'll simply have to chain them together.
 example:
 ```
 [seia - 05 - move_right]
-[seia - dots - emote]
+[seia - emote - dots]
 ```
 
 at present, dialogue will only be considered on an action pertaining to a character.
@@ -194,12 +236,6 @@ To remove all the sprites and dialogue from the scene, use
 To remove only dialogue
 ```
 [none - _ - _]
-```
-
-To change a character's faction during a script, use
-```
-[defect - <character_name> - _]
-<new_faction_name>
 ```
 
 Change the font size for dialogue, good for depicting screaming.

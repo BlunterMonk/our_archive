@@ -11,6 +11,7 @@ type Animation struct {
 	isAnimating  bool
 	currentFrame int
 	loopCount    int
+	looper       *loop.GameLoop
 }
 
 func NewAnimation(name string, gif *AnimatedSprite) *Animation {
@@ -29,7 +30,7 @@ func (a *Animation) Animate(onFinish func()) {
 	a.isAnimating = true
 	remainingLoops := a.loopCount
 	// log.Println("starting animation with loops:", remainingLoops)
-	loopTL := loop.New(a.data.GetFirstDelay(), func(f float64) int {
+	a.looper = loop.New(a.data.GetFirstDelay(), func(f float64) int {
 		frame, delay := a.data.GetNextFrame(a.currentFrame)
 		a.currentFrame = frame
 		// log.Printf("animation frame: %d, loop: %d", a.currentFrame, remainingLoops)
@@ -45,7 +46,28 @@ func (a *Animation) Animate(onFinish func()) {
 		a.isAnimating = false
 		onFinish()
 	})
-	loopTL.Start()
+	a.looper.Start()
+}
+
+func (a *Animation) AnimateForever() {
+	if a.isAnimating {
+		return
+	}
+
+	a.isAnimating = true
+	a.looper = loop.New(a.data.GetFirstDelay(), func(f float64) int {
+		frame, delay := a.data.GetNextFrame(a.currentFrame)
+		a.currentFrame = frame
+		return int(delay)
+	}, func() {})
+	a.looper.Start()
+}
+
+func (a *Animation) Stop() {
+	if a.looper != nil {
+		a.isAnimating = false
+		a.looper.Stop()
+	}
 }
 
 func (a *Animation) IsAnimating() bool {
@@ -58,4 +80,25 @@ func (a *Animation) Draw(position Vec3, shader *gfx.Program) {
 
 func (a *Animation) GetName() string {
 	return a.name
+}
+
+func (a *Animation) SetScale(n float32) {
+	a.data.SetScale(n)
+}
+func (a *Animation) GetScale() float32 {
+	return a.data.GetScale()
+}
+
+func (a *Animation) SetPositionf(x, y, z float32) {
+	a.data.SetPositionf(x, y, z)
+}
+func (a *Animation) SetPosition(p Vec3) {
+	a.data.SetPosition(p)
+}
+func (a *Animation) GetPosition() Vec3 {
+	return a.data.GetPosition()
+}
+
+func (a *Animation) GetSprite() *Sprite {
+	return a.data.Sprite
 }
