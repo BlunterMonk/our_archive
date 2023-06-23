@@ -24,7 +24,6 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/pkg/errors"
 )
 
 var (
@@ -72,7 +71,8 @@ var (
 	status       = make(chan uint32)
 
 	// static assets
-	font, fontBold        *v41.Font
+	fontRegular           = "regular"
+	fontBold              = "bold"
 	dialogue, subjectName *hud.Text
 	reply                 []*hud.Text
 	fade                  *hud.Sprite
@@ -281,7 +281,7 @@ func queueResources(view View, scriptName string) ([]loadEvent, *script.Metadata
 	for _, v := range Script.Elements() {
 		switch v.Name {
 		case "all":
-			if v.Action != "emote" {
+			if v.Action != "emote" && v.Action != "_" {
 				missing = append(missing, verifyAnimation(v.Action, metadata))
 			}
 			continue
@@ -380,202 +380,6 @@ func applyMetadata(metadata *script.Metadata) {
 	}
 }
 
-func mustLoadSystemResources(view View) {
-	// shaderProgram = gfx.MustInitShader()
-	log.Println("shader loaded")
-	// dialogue font
-	// font = gfx.MustLoadFont("NotoSans-Regular")
-	// font.ResizeWindow(float32(view.WindowWidth), float32(view.WindowHeight))
-	// fontBold = gfx.MustLoadFont("NotoSans-Bold")
-	// fontBold.ResizeWindow(float32(view.WindowWidth), float32(view.WindowHeight))
-	log.Println("font loaded")
-	// fade overlay
-	fade, _ = hud.NewSpriteFromFile("./resources/bg/black_screen.jpeg")
-	fade.LoadTexture("white", "./resources/bg/white_screen.jpeg")
-	fade.SetPositionf(0, 0, 0)
-	fade.SetAlpha(0)
-	// static and reusable UI elements
-	// opSingle, _ = hud.NewSpriteFromFile("./resources/ui/text_option_single.png")
-	// opDoubleA, _ = hud.NewSpriteFromFile("./resources/ui/text_option_a.png")
-	// opDoubleB, _ = hud.NewSpriteFromFile("./resources/ui/text_option_b.png")
-	// dialogueOverlay, _ = hud.NewSpriteFromFile("./resources/ui/dialogue_bg.png")
-	// dialogueBar, _ = hud.NewSpriteFromFile("./resources/ui/dialogue_bar.png")
-	// spriteAutoOn, _ = hud.NewSpriteFromFile("./resources/ui/auto_on.png")
-	// spriteAutoOff, _ = hud.NewSpriteFromFile("./resources/ui/auto_off.png")
-	// spriteMenuButton, _ = hud.NewSpriteFromFile("./resources/ui/menu.png")
-	// emoteBalloon, _ = hud.NewSpriteFromFile("./resources/ui/balloon.png")
-	// emoteBalloon.SetScale(0.085)
-}
-
-func loadResources(view View, scriptName string) []error {
-	var err error
-	missing := make([]error, 0)
-
-	// init resource containers
-	releaseResources()
-	mustLoadSystemResources(view)
-
-	// setup text output
-	/* script structure
-	* [actor - mood - action]
-	* example of background: [bg - black_screen - none]
-	* exmaple of character: [mika - 03 - heart]
-	 */
-	Script = script.NewScriptFromFile(fmt.Sprintf("./resources/scripts/%s.txt", scriptName))
-	metadata, err := script.LoadMetadata("./resources/settings.json")
-	if err != nil {
-		panic(err)
-	}
-
-	Names["all"] = hud.NewSolidText("All", hud.COLOR_WHITE, fontBold)
-	Names["all"].SetScale(float32(speakerScale))
-	Names["all"].SetPositionf(view.speakerX, view.speakerY)
-	for _, v := range Script.Elements() {
-		switch v.Name {
-		case "bg":
-			log.Println("loading background:", v.Name)
-			Backgrounds[v.Mood], err = hud.NewSpriteFromFile(fmt.Sprintf("./resources/bg/%v.jpeg", v.Mood))
-			if err != nil {
-				missing = append(missing, errors.Wrap(err, "failed to load background"))
-			}
-			continue
-		case "bgm":
-			log.Println("loading bgm:", v.Mood)
-			Sounds[v.Mood], err = sfx.NewStreamer(fmt.Sprintf("./resources/bgm/%s.mp3", v.Mood))
-			if err != nil {
-				missing = append(missing, errors.Wrap(err, "failed to load bgm"))
-			}
-			continue
-		case "sfx":
-			log.Println("loading sfx:", v.Mood)
-			Sounds[v.Mood], err = sfx.NewStreamer(fmt.Sprintf("./resources/sfx/%s.mp3", v.Mood))
-			if err != nil {
-				missing = append(missing, errors.Wrap(err, "failed to load sfx"))
-			}
-			continue
-		case "all":
-			if v.Action != "emote" {
-				missing = append(missing, verifyAnimation(v.Action, metadata))
-			}
-			continue
-		case "defect", "none", "clear", "_", "font", "fade":
-			continue
-		}
-
-		// create names if they don't exist
-		if _, ok := Names[v.Name]; !ok {
-			log.Println("initializing name:", v.Name)
-			Names[v.Name] = hud.NewSolidText(toTitle(v.Name), hud.COLOR_WHITE, fontBold)
-			Names[v.Name].SetScale(float32(speakerScale))
-			Names[v.Name].SetPositionf(view.speakerX, view.speakerY)
-		}
-		if _, ok := Factions[v.Name]; !ok {
-			// create faction text
-			for _, actor := range metadata.Actors {
-				if actor.FactionName == nil || *actor.FactionName == "" {
-					continue
-				}
-				if actor.Name == v.Name {
-					log.Println("creating faction name for:", v.Name, *actor.FactionName)
-					name := strings.ToLower(v.Name)
-					Factions[name] = hud.NewSolidText(*actor.FactionName, mgl32.Vec3{0.49, 0.81, 1}, fontBold)
-					Factions[name].SetScale(0.8)
-					break
-				}
-			}
-		}
-
-		// if it's not a system asset it's an actor
-		key := spriteKey(v)
-
-		// check to see if the action is an emote
-		switch v.Action {
-		case "emote": // load the emote if it isn't already
-			if _, ok := Emotes[v.Mood]; !ok {
-				Emotes[v.Mood] = hud.NewAnimatedSpriteFromFile(fmt.Sprintf("./resources/emote/%s.gif", v.Mood))
-				if _, ok := Sounds[v.Mood]; !ok {
-					Sounds[v.Mood], err = sfx.NewStreamer(fmt.Sprintf("./resources/sfx/%s.mp3", v.Mood))
-					missing = append(missing, err)
-				}
-			}
-			break
-		default: // if it's not an emote, then load the texture onto the actor as an expression
-			// if there's an actor sprite load the actor if it doesn't exist
-			if v.Mood != "_" {
-				log.Println("loading actor:", v.Name, "with expression:", v.Mood, "and action:", v.Action)
-				if _, ok := Actors[v.Name]; !ok {
-					Actors[v.Name] = NewActor(v.Name)
-				}
-
-				// Sprites[key], err = hud.LoadTexture(fmt.Sprintf("./resources/actor/%s/%s-%s.png", v.Name, v.Name, v.Mood))
-				if err != nil {
-					missing = append(missing, errors.Wrap(err, "failed to load actor sprite"))
-				}
-				Actors[v.Name].LoadTexture(key, fmt.Sprintf("./resources/actor/%s/%s-%s.png", v.Name, v.Name, v.Mood))
-				Actors[v.Name].SetPositionf(0, 0, 0)
-			}
-
-			if v.Action != "_" {
-				missing = append(missing, verifyAnimation(v.Action, metadata))
-			}
-		}
-	}
-
-	// fmt.Println(Emotes)
-	for _, actor := range metadata.Actors {
-		if a, ok := Actors[actor.Name]; ok {
-			a.SetCenter(actor.CenterX, actor.CenterY, actor.CenterScale)
-			a.SetPositionf(actor.CenterX, actor.CenterY, 0)
-			a.SetScale(actor.CenterScale)
-
-			if actor.FactionName != nil && *actor.FactionName != "" {
-				a.FactionName = *actor.FactionName
-			}
-
-			// add emote data to actor
-			for _, emote := range metadata.Emotes {
-				// fmt.Println("laoding metadata for emote:", emote.Name)
-				if _, ok := Emotes[emote.Name]; ok {
-					// fmt.Println("type:", emote.Type)
-					switch emote.Type {
-					case "head":
-						a.AddEmoteData(emote.Name, hud.Vec3{actor.EmoteOffsetHead.X, actor.EmoteOffsetHead.Y, 0})
-					case "bubble":
-						a.AddEmoteData(emote.Name, hud.Vec3{actor.EmoteOffsetBubble.X, actor.EmoteOffsetBubble.Y, 0})
-					}
-				}
-			}
-		}
-	}
-	for _, emote := range metadata.Emotes {
-		if a, ok := Emotes[emote.Name]; ok {
-			a.SetScale(emote.Scale)
-		}
-	}
-	for _, anim := range metadata.Animation {
-		if _, ok := ActorAnimations[anim.Name]; ok {
-			log.Println("duplicate animation:", anim.Name)
-		}
-		ActorAnimations[anim.Name] = anim
-	}
-
-	// display errors
-	if len(missing) > 0 {
-		var texts []string
-		for _, v := range missing {
-			if v == nil {
-				continue
-			}
-			texts = append(texts, v.Error())
-		}
-		if len(texts) > 0 {
-			DebugChannel <- fmt.Sprintf("Script Errors:\n%s", strings.Join(texts, "\n"))
-		}
-	}
-
-	return missing
-}
-
 func verifyAnimation(name string, metadata *script.Metadata) error {
 	for _, anim := range metadata.Animation {
 		// fmt.Println("comparing animation:", anim.Name, name)
@@ -598,8 +402,8 @@ func releaseResources() {
 		dialogue = nil
 	}
 	releaseReplies()
-	if font != nil {
-		font.Release()
+	for _, v := range Fonts {
+		v.Release()
 	}
 	if shaderProgram != nil {
 		shaderProgram.Delete()
@@ -780,8 +584,8 @@ F:
 			gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
 			if debugString != "" && debugText == nil {
-				if _, ok2 := Fonts["regular"]; ok2 {
-					debugText = hud.NewSolidText(debugString, mgl32.Vec3{0.9, 0.9, 0.9}, Fonts["regular"])
+				if _, ok2 := Fonts[fontRegular]; ok2 {
+					debugText = hud.NewSolidText(debugString, mgl32.Vec3{0.9, 0.9, 0.9}, Fonts[fontRegular])
 				}
 			}
 
@@ -942,7 +746,7 @@ func drawText(view View) {
 			} else {
 				text = fmt.Sprintf("position: (%f, %f)\nscale: (%f)\nVolume: (%f)", p.X(), p.Y(), s.GetScale(), CurrentBgmVolume)
 			}
-			pos := hud.NewSolidText(text, hud.COLOR_WHITE, Fonts["regular"])
+			pos := hud.NewSolidText(text, hud.COLOR_WHITE, Fonts[fontRegular])
 			pos.SetScale(2)
 			DrawText(view, pos, 0, 0)
 		}
@@ -1140,7 +944,7 @@ func nextDialogue(status *chan uint32) {
 	case "sensei":
 		// 2E4152
 		for _, v := range element.Lines {
-			reply = append(reply, hud.NewSolidText(v, mgl32.Vec3{0.18, 0.255, 0.322}, font))
+			reply = append(reply, hud.NewSolidText(v, mgl32.Vec3{0.18, 0.255, 0.322}, Fonts[fontRegular]))
 		}
 		break
 	case "none":
@@ -1164,7 +968,7 @@ func prepareActor(status *chan uint32, element script.ScriptElement) {
 
 	// only display dialogue if there is dialogue
 	if element.Line != "" && len(element.Lines) > 0 {
-		dialogue = hud.NewText(element.Line, hud.COLOR_WHITE, Fonts["regular"])
+		dialogue = hud.NewText(element.Line, hud.COLOR_WHITE, Fonts[fontRegular])
 		dialogue.SetScale(CurrentFontSize)
 		dialogue.AsyncAnimate(status)
 	}
