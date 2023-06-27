@@ -1,16 +1,16 @@
-### Description
+# Description
 
 This program allows you to create custom cutscenes based off the hit gacha game, Blue Archive
 all settings and systems are optimized for Blue Archive, but any sprites are possible.
 
-### Instructions
+# Instructions
 
 Sprites, scripts, and animations are all dynamic
 
 Inside ./resources/settings.json
 you'll find some examples of how to setup sprite data, and how to create animations
 
-### Hotkeys
+# Hotkeys
 
 You can enter debugging mode to help get the settings for sprites
 press D to enter debugging mode
@@ -23,7 +23,7 @@ JKLI: move the emote bubble
 
 the position and scale of the character will show on screen, once you're happy with the values, put them into the settings.json file.
 
-### Resources
+# Resources
 
 Explanation of all the resources
 (ignore shaders)
@@ -92,19 +92,21 @@ not configurable but you can edit them if you want.
 # Scripts
 
 A script is compromised of two parts, an action and dialogue
-
 an action can be many things, these are the supported formats:
 
-A character speaking
-<character_name>: can be any name, this name will be used to match any sprite settings defined in the settings.json file
-<expression>: The expressions are considered numeric values based on the character name. (i.e. mika-01, mika-02)
-<animation>: the name of the animation you want to play with this dialogue, the animations are defined in the settings.json file
+## Characters and Dialogue
 
+<character_name>: can be any name, this name will be used to match any sprite settings defined in the settings.json file <br />
+<expression>: The expressions are considered numeric values based on the character name. (i.e. mika-01, mika-02) <br />
+<animation>: the name of the animation you want to play with this dialogue, the animations are defined in the settings. json file<br />
+```
 [<character_name> - <expression/action> - <animation_name/action_name>]
 <dialogue>
-
+```
 NOTE: if no action is given, it defaults to animation, this is a shortcut so you can change expression and animate in one call
+
 list of predefined actions:
+```
 [<character_name> - <expression> - <animation_name>] = [<character_name> - animation - <animation_name>]
 [<character_name> - emote - <emote_name>] play an emote for the character
 [<character_name> - fade - in] fade FROM black TO full color
@@ -114,6 +116,7 @@ list of predefined actions:
 [<character_name> - rename - _] change a character's name temporarily during a cutscene, DONT FORGET TO CHANGE IT. This will ONLY change the DISPLAYED name, to control the character, continue using their normal name for <character_name>
 [<character_name> - defect - <new_affiliation>] change a character's affiliation
 [<character_name> - defect - _] remove a character's affiliation completely
+```
 
 ANYTHING OTHER THAN A PREDEFINED ACTION WILL BE CONSIDERED A SPRITE EXPRESSION
 
@@ -133,77 +136,7 @@ another example:
 [airi - 06 - move_right]
 ```
 
-Sensei: you can add the little chat options for sensei's dialogue with this, supports up to two options
-[sensei - _ - _]
-<dialogue>
-example:
-```
-[sensei - _ - _]
-"I teach, therefore I am sensei"
-```
-or
-```
-[sensei - _ - _]
-"This is your first option"
-"And this is your second option"
-```
-
-You can use the word "all" to apply the command to all characters on screen.
-All the rules of the character command apply here.
-This will highlight all characters on screen, and apply any emotes, animations, and dialogue for all of them at once.
-[all - <action> - <animation_name>]
-<dialogue>
-example:
-```
-[all - _ - _]
-Good morning Sensei
-```
-another example:
-```
-[all - emote - dots]
-```
-
-this will change the background being used
-[bg - <bg_name> - _]
-example:
-```
-[bg - trinity_clubroom - _]
-```
-
-BGM: only mp3 files are supported currently
-change the bgm playing:
-
-[bgm - play - <bgm_name>] play a bgm
-example of shortcut:
-```
-[bgm - play - theme_54]
-```
-[bgm - pause - _] to pause the bgm 
-[bgm - resume - _] to continue the bgm 
-[bgm - fade - in] fade bgm in
-[bgm - fade - out] fade bgm out
-example of shortcut:
-```
-[bgm - theme_54 - _]
-```
-
-play a sound effect just once
-[sfx - <sfx_name> - _]
-example:
-```
-[sfx - sfx_chat - _]
-```
-
-Screen fade, if no color is given it defaults to black
-screen fade to black:
-[fade - black - in]
-[fade - black - out]
-
-screen fade to white:
-[fade - white - in]
-[fade - white - out]
-
-play an emote for the character instead of changing the expression
+example of using emotes
 NOTE: emote settings are defined in the settings.json, mainly to dictate the position each emote should display on a characters. since every character might have a slightly different position
 [<character_name> - <emote> - <emote>]
 example:
@@ -217,7 +150,7 @@ example:
 [seia - emote - dots]
 ```
 
-at present, dialogue will only be considered on an action pertaining to a character.
+dialogue will only be considered on an action pertaining to a character.
 You can stack actions in succession and then add dialogue anywhere in between, for example:
 ```
 [bg - trinity_clubroom - none]
@@ -227,27 +160,124 @@ You can stack actions in succession and then add dialogue anywhere in between, f
 [seia - 00 - move_left]
 ....Mika?
 ```
+To make dialogue for a nameless character
+```
+[_ - _ - _]
+```
 
+### Sensei
+you can add the little chat options for sensei's dialogue with this, supports up to two options
+```
+[sensei - _ - _]
+<dialogue>
+```
+example:
+```
+[sensei - _ - _]
+"I teach, therefore I am sensei"
+```
+or
+```
+[sensei - _ - _]
+"This is your first option"
+"And this is your second option"
+```
+
+### controlling all characters
+
+You can use the word "all" to apply the command to all characters on screen.
+All the rules of the character command apply here.
+This will highlight all characters on screen, and apply any emotes, animations, and dialogue for all of them at once.
+```
+[all - <action> - <animation_name>]
+<dialogue>
+```
+example:
+```
+[all - _ - _]
+Good morning Sensei
+```
+another example:
+```
+[all - emote - dots]
+```
+
+## Non-Character Actions
+
+the following are all actions that would effect the scene itself
+
+### Scene Background
+this will change the background being used
+[bg - <bg_name> - _]
+example:
+```
+[bg - trinity_clubroom - _]
+```
+
+### BGM
+only mp3 files are supported currently
+change the bgm playing:
+```
+[bgm - play - <bgm_name>]
+[bgm - pause - _] 
+[bgm - resume - _]
+[bgm - fade - in] 
+[bgm - fade - out]
+```
+example:
+```
+[bgm - play - theme_54]
+```
+
+### Sound Effect
+play a sound effect just once
+```
+[sfx - <sfx_name> - _]
+```
+example:
+```
+[sfx - explosion - _]
+```
+
+### Screen fade
+if no color is given it defaults to black
+screen fade to black:
+```
+[fade - black - in]
+[fade - black - out]
+```
+screen fade to white:
+```
+[fade - white - in]
+[fade - white - out]
+```
+
+### clear the scene
 To remove all the sprites and dialogue from the scene, use
 ```
 [clear - _ - _]
 ```
-
 To remove only dialogue
 ```
 [none - _ - _]
 ```
 
+### Font
+
 Change the font size for dialogue, good for depicting screaming.
 The font size will persist for all dialogue after it. So make sure to change it back when you're done
 for reference, the default size is 0.85
+```
 [font - size - <size>]
+```
 example:
 ```
 [font - size - 0.65]
 ```
 and to bring it back to normal
+```
 [font - size - reset]
+```
 
 # Adding Animations
 
@@ -262,27 +292,29 @@ the screen is setup as so
    ------(-1.0)-----
 
 use this as reference when making animations
+all options for "frames" are optional
 ```
 {
-  "name": "<animation_name>",
-  "speed": 0.1, // a speed of 1 will make the animation end instantly
-  "frames": [
-      {
-        "add_x": adds x amount to the current position of the character during the animation, 
-        "add_y": same as above for the y position, 
-        "x": sets the x position based on the screen,
-        "y": same as x,
-        "delay": amount of time to wait before playing the next frame IN SECONDS
-        "reset": if true, all other options will be ignored and the character position is set to what it was before the animation played.
-        "center": if true, ignore all other options, and set the position to the CENTER based on the center_x/center_y for this character.
-      },
-  ]
+  "<animation_name>": {
+    "speed": 0.1, // a speed of 1 will make the animation end instantly
+    "frames": [
+        {
+          "add_x": adds x amount to the current position of the character during the animation, 
+          "add_y": same as above for the y position, 
+          "x": sets the x position based on the screen,
+          "y": same as x,
+          "delay": amount of time to wait before playing the next frame IN SECONDS
+          "reset": if true, all other options will be ignored and the character position is set to what it was before the animation played.
+          "center": if true, ignore all other options, and set the position to the CENTER based on the center_x/center_y for this character.
+        },
+    ]
+  }
 },
 ```
 example:
 ```
 {
-    "name": "run_around",
+  "run_around": {
     "speed": 0.05,
     "frames": [
         {"x": -0.5},
@@ -291,12 +323,13 @@ example:
         {"center": true},
         {"x": -0.5}
     ]
+  }
 },
 ```
 
 NOTE: if an animation is set to a speed of 1, it will complete instantly
 
-### Troubleshooting
+# Troubleshooting
 
 ・if audio sounds weird, make sure the sample rate on the file is 44100
 ・if the app crashes, 99% of the time it's because something failed to load

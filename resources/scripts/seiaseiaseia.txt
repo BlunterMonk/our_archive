@@ -1,0 +1,185 @@
+[bg - trinity_clubroom - _]
+[_ - _ - _]
+(I went to visit Seia because of a weird dream...)
+[??? - _ - _]
+[font - resize - 0.5]
+Ugh... did I gain weight? 
+[font - resize - reset]
+[sensei - _ - _]
+Open the door.
+[??? - _ - _]
+WHA-!? 
+Who's there!?
+[bg - seias_fat_ass - _]
+[Seia - _ - _]
+SENSEI!?
+[sensei - _ - _]
+!!!!!!!
+"S-s-sorry I didn't..!"
+[clear - _ - _]
+[bg - black_screen - _]
+[sensei - _ - _]
+"I'm sorry Seia, please..."
+[seia - _ - _]
+Is someone there...?
+[seia - _ - _]
+Please come in.....
+[sensei - _ - _]
+(Face the consequences of your actions)
+[seia - 03 - _]
+Oh, hello Sensei, what a surprise....
+[seia - 02 - _]
+I didn't know you would be coming today.
+[seia - 02 - _]
+What brings you here?
+[sensei - _ - _]
+(She's acting like nothing happened!?)
+[sensei - _ - _]
+"W-well, uh, I just..."
+"I came to ask about something...."
+[seia - 04 - _]
+Is that so, what ever about?
+[sensei - _ - _]
+"I feel like..."
+"I got a real kick in the behind."
+[seia - 05 - _]
+Behind?
+[sensei - _ - _]
+"Aah! I mean uh, it's really nagging me"
+[clear - _ - _]
+[sensei - _ - _]
+"There's a weird dream I had"
+"And it's like there's a heavy weight on my shoulder..."
+[seia - 06 - _]
+Heavy weight....
+[seia - 07 - _]
+[seia - emote - dots]
+[sensei - _ - _]
+"Uhh, I mean uh..."
+[seia - fade - out]
+[seia - 08 - get_closer]
+[seia - fade - in]
+Sensei...
+[_ - _ - _]
+(I felt an ominous pressure, like a rabbit caught in a foxes maw)
+[_ - _ - _]
+(Seia closed in and whispered into my ear)
+[font - resize - 0.5]
+[seia - 02 - _]
+you think it's fun teasing me?
+[font - resize - reset]
+[sensei - _ - _]
+"Eeeek-!"
+[clear - _ - _]
+[bg - black_screen - _]
+[fade - black - in]
+[_ - _ - _]
+(At that moment I leapt back and did the best dogeza I ever done in my life)
+[sensei - _ - _]
+"I really didn't mean to!"
+[seia - _ - _]
+*sigh* .....it's fine Sensei...
+[seia - _ - _]
+Come on, stand up already....
+[sensei - _ - _]
+Rise oh youth.
+[sensei - _ - _]
+"You're not mad?"
+[seia - 02 - _]
+Of course I'm mad.
+[seia - 07 - _]
+[seia - emote - dots]
+[seia - 02 - _]
+I'll forgive you if you just fulfill my request.
+[sensei - _ - _]
+"I'll do anything!"
+[seia - 04 - _]
+Pick me up.
+[sensei - _ - _]
+"...come again?"
+[seia - 05 - _]
+I said lift me up, as high as you can.
+[seia - 02 - _]
+I was worried that... I may have gotten heavier...
+[seia - 03 - _]
+So..... be my scale.
+[_ - _ - _]
+(I really can't refuse her so....)
+[sensei - _ - _]
+Grab on to Seia's waist.
+"Ok... ready?"
+[seia - 08 - _]
+(His hands nearly wrap around my whole waist....)
+[seia - 05 - _]
+I'm r-ready....
+[_ - _ - _]
+(I lifted Seia with all my might)
+[clear - _ - _]
+[_ - _ - _]
+(She's so light, it was like lifting a stuffed animal)
+[seia - _ - _]
+G-good if you can do that much...
+[seia - _ - _]
+I have nothing to worry about....
+[sensei - _ - _]
+"......"
+[seia - _ - _]
+Sensei...?
+[sensei - _ - _]
+Hug her.
+Risk it all.
+[sfx - shock - _]
+[seia - _ - _]
+SENSEI-!?
+[fade - black - out]
+[fade - black - in]
+[sensei - _ - _]
+"I'm sorry I'm sorry I'm sorry I'm sorry I'm sorry!"
+"You were just... before I knew it I...."
+[seia - 07 - _]
+*sigh* ......
+[seia - 06 - _]
+Sensei... you apologize too much.
+[sensei - _ - _]
+"huh..."
+[seia - 03 - _]
+If you needed a hug so bad you could have just said so
+[seia - 04 - _]
+I understand how stressful your job Is
+[seia - 03 - _]
+I've seen your dreams remember
+[sensei - _ - _]
+"Y-yeah...."
+[seia - 06 - _]
+I don't mind.... being your stress relief...
+[seia - 02 - closer]
+[_ - _ - _]
+(Seia suddenly sat on my lap)
+[seia - 05 - _]
+Now, how are you feeling.... stressed?
+[sfx - knock - _]
+[sfx - door - _]
+[nagisa - _ - _]
+Excuse me Seia-san, but I need your.....
+[sfx - dots - _]
+[font - resize - 1.5]
+EEEEEK-!! 
+[nagisa - _ - _]
+LECHEROUS SENSEI, DELETE YOUR MEMORY!
+[mika - _ - _]
+What's going on?
+[sfx - shock - _]
+[mika - _ - _]
+WOW! Seia-chan look at you!
+[sensei - _ - _]
+"It's not what it looks like!"
+[seia - 05 - _]
+Oh? What does it look like Sensei...?
+[_ - _ - _]
+(It was at that moment, the last shred of resistance I had was torn in two)
+[sensei - _ - _]
+Hug her tight.
+"I. LOVE. SEIAAAAAAAAAA-!"
+[fade - black - out]
+[_ - _ - _]
+(I woke up )

@@ -308,13 +308,9 @@ func queueResources(view View, scriptName string) ([]loadEvent, *script.Metadata
 		// create names if they don't exist
 		loads = append(loads, loadEvent{Key: v.Name, Category: "name"})
 		// create faction text
-		for _, actor := range metadata.Actors {
-			if actor.FactionName == nil || *actor.FactionName == "" {
-				continue
-			}
-			if actor.Name == v.Name {
+		if actor, ok := metadata.Actors[v.Name]; ok {
+			if actor.FactionName != nil && *actor.FactionName != "" {
 				loads = append(loads, loadEvent{Object: v.Name, Key: *actor.FactionName, Category: "faction"})
-				break
 			}
 		}
 
@@ -347,8 +343,8 @@ func queueResources(view View, scriptName string) ([]loadEvent, *script.Metadata
 
 func applyMetadata(metadata *script.Metadata) {
 	// fmt.Println(Emotes)
-	for _, actor := range metadata.Actors {
-		if a, ok := Actors[actor.Name]; ok {
+	for name, actor := range metadata.Actors {
+		if a, ok := Actors[name]; ok {
 			a.SetCenter(actor.CenterX, actor.CenterY, actor.CenterScale)
 			a.SetPositionf(actor.CenterX, actor.CenterY, 0)
 			a.SetScale(actor.CenterScale)
@@ -358,36 +354,27 @@ func applyMetadata(metadata *script.Metadata) {
 			}
 
 			// add emote data to actor
-			for _, emote := range metadata.Emotes {
+			for emoteName, emote := range metadata.Emotes {
 				switch emote.Type {
 				case "head":
-					a.AddEmoteData(emote.Name, hud.Vec3{actor.EmoteOffsetHead.X, actor.EmoteOffsetHead.Y, 0})
+					a.AddEmoteData(emoteName, hud.Vec3{actor.EmoteOffsetHead.X, actor.EmoteOffsetHead.Y, 0})
 				case "bubble":
-					a.AddEmoteData(emote.Name, hud.Vec3{actor.EmoteOffsetBubble.X, actor.EmoteOffsetBubble.Y, 0})
+					a.AddEmoteData(emoteName, hud.Vec3{actor.EmoteOffsetBubble.X, actor.EmoteOffsetBubble.Y, 0})
 				}
 			}
 		}
 	}
-	for _, emote := range metadata.Emotes {
-		if a, ok := Emotes[emote.Name]; ok {
+	for name, emote := range metadata.Emotes {
+		if a, ok := Emotes[name]; ok {
 			a.SetScale(emote.Scale)
 		}
 	}
-	for _, anim := range metadata.Animation {
-		if _, ok := ActorAnimations[anim.Name]; ok {
-			log.Println("duplicate animation:", anim.Name)
-		}
-		ActorAnimations[anim.Name] = anim
-	}
+	ActorAnimations = metadata.Animations
 }
 
 func verifyAnimation(name string, metadata *script.Metadata) error {
-	for _, anim := range metadata.Animation {
-		// fmt.Println("comparing animation:", anim.Name, name)
-		if anim.Name == name {
-			// fmt.Println("found animation:", anim.Name)
-			return nil
-		}
+	if _, ok := metadata.Animations[name]; ok {
+		return nil
 	}
 
 	return fmt.Errorf("animation with name \"%s\" found in script, but not in settings.json", name)

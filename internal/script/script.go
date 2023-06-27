@@ -8,6 +8,8 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -30,35 +32,38 @@ type ScriptElement struct {
 }
 
 type Metadata struct {
-	Actors    []ActorMetadata     `json:"actor"`
-	Animation []AnimationMetadata `json:"animation"`
-	Emotes    []EmoteMetadata     `json:"emote"`
+	Actors       map[string]ActorMetadata     `json:"actors"`
+	Animations   map[string]AnimationMetadata `json:"animations"`
+	Emotes       map[string]EmoteMetadata     `json:"emotes"`
+	ActorOld     []ActorMetadata              `json:"actor,omitempty"`
+	AnimationOld []AnimationMetadata          `json:"animation,omitempty"`
+	EmoteOld     []EmoteMetadata              `json:"emote,omitempty"`
 }
 type ActorMetadata struct {
-	Name              string   `json:"name"`
-	FactionName       *string  `json:"faction_name"`
-	CenterX           float32  `json:"center_x"`
-	CenterY           float32  `json:"center_y"`
-	CenterScale       float32  `json:"center_scale"`
-	EmoteOffsetHead   Position `json:"emote_offset_head"`
-	EmoteOffsetBubble Position `json:"emote_offset_bubble"`
+	Name              string   `json:"name,omitempty"`
+	FactionName       *string  `json:"faction_name,omitempty"`
+	CenterX           float32  `json:"center_x,omitempty"`
+	CenterY           float32  `json:"center_y,omitempty"`
+	CenterScale       float32  `json:"center_scale,omitempty"`
+	EmoteOffsetHead   Position `json:"emote_offset_head,omitempty"`
+	EmoteOffsetBubble Position `json:"emote_offset_bubble,omitempty"`
 }
 type AnimationMetadata struct {
-	Name   string          `json:"name"`
+	Name   string          `json:"name,omitempty"`
 	Speed  float32         `json:"speed"`
 	Frames []FrameMetadata `json:"frames"`
 }
 type FrameMetadata struct {
-	X      *float32 `json:"x"`
-	Y      *float32 `json:"y"`
-	AddX   *float32 `json:"add_x"`
-	AddY   *float32 `json:"add_y"`
-	Delay  *float32 `json:"delay"`
-	Reset  bool     `json:"reset"`
-	Center bool     `json:"center"`
+	X      *float32 `json:"x,omitempty"`
+	Y      *float32 `json:"y,omitempty"`
+	AddX   *float32 `json:"add_x,omitempty"`
+	AddY   *float32 `json:"add_y,omitempty"`
+	Delay  *float32 `json:"delay,omitempty"`
+	Reset  bool     `json:"reset,omitempty"`
+	Center bool     `json:"center,omitempty"`
 }
 type EmoteMetadata struct {
-	Name  string  `json:"name"`
+	Name  string  `json:"name,omitempty"`
 	Scale float32 `json:"scale"`
 	Type  string  `json:"type"`
 }
@@ -141,7 +146,80 @@ func LoadMetadata(filename string) (*Metadata, error) {
 		return nil, err
 	}
 
-	return &meta, nil
+	newFile := "./resources/settings-new.json"
+	newFileErr := fmt.Errorf("old settings format detected, Arona converted it for you and saved it to: %s", newFile)
+	actorOld := make([]ActorMetadata, 0)
+	animOld := make([]AnimationMetadata, 0)
+	emoteOld := make([]EmoteMetadata, 0)
+	if len(meta.ActorOld) > 0 {
+		if meta.Actors == nil {
+			meta.Actors = make(map[string]ActorMetadata)
+		}
+		for _, v := range meta.ActorOld {
+			if _, ok := meta.Actors[v.Name]; !ok {
+				n := v.Name
+				v.Name = ""
+				meta.Actors[n] = v
+			} else {
+				actorOld = append(actorOld, v)
+				err = errors.Wrapf(err, "duplicate actor setting: \"%s\"", v.Name)
+			}
+		}
+		err = newFileErr
+	}
+	if len(meta.EmoteOld) > 0 {
+		if meta.Emotes == nil {
+			meta.Emotes = make(map[string]EmoteMetadata)
+		}
+		for _, v := range meta.EmoteOld {
+			n := v.Name
+			if _, ok := meta.Emotes[n]; !ok {
+				v.Name = ""
+				meta.Emotes[n] = v
+			} else {
+				emoteOld = append(emoteOld, v)
+				err = errors.Wrapf(err, "duplicate emote setting: \"%s\"", v.Name)
+			}
+		}
+		err = newFileErr
+	}
+	if len(meta.AnimationOld) > 0 {
+		if meta.Animations == nil {
+			meta.Animations = make(map[string]AnimationMetadata)
+		}
+		for _, v := range meta.AnimationOld {
+			if _, ok := meta.Animations[v.Name]; !ok {
+				n := v.Name
+				v.Name = ""
+				meta.Animations[n] = v
+			} else {
+				animOld = append(animOld, v)
+				err = errors.Wrapf(err, "duplicate animation setting: \"%s\"", v.Name)
+			}
+		}
+		err = newFileErr
+	}
+	if err != nil { // if we get an error here it's because there were some script cleanup to do
+		newMeta := Metadata{
+			Actors:       meta.Actors,
+			Animations:   meta.Animations,
+			Emotes:       meta.Emotes,
+			ActorOld:     actorOld,
+			EmoteOld:     emoteOld,
+			AnimationOld: animOld,
+		}
+
+		newData, err := json.MarshalIndent(newMeta, "", "	")
+		if err != nil {
+			return &meta, errors.Wrap(err, "tried to save the new settings file but something happened")
+		}
+		err = os.WriteFile(newFile, newData, 0777)
+		if err != nil {
+			return &meta, errors.Wrap(err, "tried to save the new settings file but something happened")
+		}
+	}
+
+	return &meta, err
 }
 
 func (s *Script) Get(index int) ScriptElement {
