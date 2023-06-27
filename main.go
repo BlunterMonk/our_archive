@@ -104,12 +104,13 @@ var (
 	useStrictCoreProfile = (runtime.GOOS == "darwin")
 	shaderProgram        *gfx.Program
 
-	ACTOR_LEFT  = hud.Vec3{-0.5, -0.65, 0.0}
-	ACTOR_RIGHT = hud.Vec3{0.5, -0.65, 0.0}
-	AUTO        = false
-	DEBUG       = false
-	DEBUG_TEXT  string
-	LOADING     = false
+	ACTOR_LEFT           = hud.Vec3{-0.5, -0.65, 0.0}
+	ACTOR_RIGHT          = hud.Vec3{0.5, -0.65, 0.0}
+	AUTO                 = false
+	DEBUG                = false
+	DEBUG_TEXT           string
+	LOADING              = false
+	WAITING_CONFIRMATION = false
 )
 
 const (
@@ -141,9 +142,10 @@ func init() {
 	runtime.LockOSThread()
 }
 
+var scriptName string
+
 func main() {
 
-	var scriptName string
 	if len(os.Args) > 3 {
 		scriptName = os.Args[3]
 	} else {
@@ -183,8 +185,10 @@ func loadResource(load loadEvent) error {
 
 	switch category {
 	case "font":
-		Fonts[objectName] = gfx.MustLoadFont(key)
-		Fonts[objectName].ResizeWindow(float32(LANDSCAPE_VIEW.WindowWidth), float32(LANDSCAPE_VIEW.WindowHeight))
+		if _, ok := Fonts[objectName]; !ok {
+			Fonts[objectName] = gfx.MustLoadFont(key)
+			Fonts[objectName].ResizeWindow(float32(LANDSCAPE_VIEW.WindowWidth), float32(LANDSCAPE_VIEW.WindowHeight))
+		}
 	case "bg":
 		if _, ok := Backgrounds[key]; !ok {
 			Backgrounds[key], err = hud.NewSpriteFromFile(fmt.Sprintf("./resources/%s/%s.jpeg", category, key))
@@ -286,7 +290,7 @@ func queueResources(view View, scriptName string) ([]loadEvent, *script.Metadata
 				missing = append(missing, verifyAnimation(v.Action, metadata))
 			}
 			continue
-		case "defect", "none", "clear", "_", "font", "fade":
+		case "defect", "delay", "none", "clear", "_", "font", "fade":
 			continue
 		case "bgm":
 			switch v.Mood {
@@ -328,6 +332,9 @@ func queueResources(view View, scriptName string) ([]loadEvent, *script.Metadata
 			break
 		default: // if it's not an emote, then load the texture onto the actor as an expression
 			loads = append(loads, loadEvent{Object: v.Name, Key: spriteKey(v), Category: "actor"})
+			if v.Action != "_" {
+				missing = append(missing, verifyAnimation(v.Action, metadata))
+			}
 		}
 	}
 
@@ -382,22 +389,13 @@ func verifyAnimation(name string, metadata *script.Metadata) error {
 
 func releaseResources() {
 
-	sfx.Close()
-
 	// clean up resources
-	if dialogue != nil {
-		dialogue.Release()
-		dialogue = nil
-	}
+	releaseDialogue()
 	releaseReplies()
-	for _, v := range Fonts {
-		v.Release()
-	}
-	if shaderProgram != nil {
-		shaderProgram.Delete()
-	}
 	for _, v := range Sounds {
-		v.Release()
+		if v != nil {
+			v.Release()
+		}
 	}
 
 	charSprite = make(map[string]*Actor)
@@ -409,8 +407,25 @@ func releaseResources() {
 	Names = make(map[string]*hud.Text)
 	Sounds = make(map[string]*sfx.Streamer)
 	Sprites = make(map[string]*hud.Sprite)
-	Fonts = make(map[string]*v41.Font)
+	if Fonts == nil {
+		Fonts = make(map[string]*v41.Font)
+	}
 	dialogueIndex = -1
+	// CurrentBG = ""
+	// currentBGM = nil
+	// CurrentFontSize = 0.85
+}
+
+func shutdown() {
+	for _, v := range Fonts {
+		v.Release()
+	}
+	if shaderProgram != nil {
+		shaderProgram.Delete()
+	}
+
+	releaseResources()
+	sfx.Close()
 }
 
 func loadGame(view View, scriptName string) {
@@ -525,6 +540,9 @@ F:
 				delay = *time.NewTimer(time.Second)
 			case 2:
 				nextDialogue(&status)
+			case 3:
+				WAITING_CONFIRMATION = false
+				nextDialogue(&status)
 			}
 		case <-delay.C:
 			if AUTO {
@@ -613,7 +631,7 @@ F:
 	shuttingDown = true
 	wg.Wait()
 
-	releaseResources()
+	shutdown()
 	os.Exit(xCode)
 }
 
@@ -641,7 +659,7 @@ func drawActors() {
 	for _, name := range keys {
 		if actor, ok := charSprite[name]; ok {
 			// don't recolor actors being faded by animations
-			if !actor.Faded {
+			if !actor.Faded && !actor.Silhouette {
 				// slightly discolor whoever isn't talking
 				if CurrentSpeaker == "all" || name == CurrentSpeaker {
 					actor.SetColorf(1, 1, 1)
@@ -697,7 +715,7 @@ func drawText(view View) {
 		DrawText(view, reply[0], (float32(view.WindowWidth)/2)-(reply[0].Width()/2)+25, 285)
 	} else if len(reply) == 2 {
 		DrawText(view, reply[0], (float32(view.WindowWidth)/2)-(reply[0].Width()/2)+25, 240)
-		DrawText(view, reply[1], (float32(view.WindowWidth)/2)-(reply[0].Width()/2)+25, 330)
+		DrawText(view, reply[1], (float32(view.WindowWidth)/2)-(reply[1].Width()/2)+25, 330)
 	}
 	if DEBUG {
 		var text []string
@@ -814,9 +832,9 @@ func mouseButtonCallback(w *glfw.Window, button glfw.MouseButton, action glfw.Ac
 			fmt.Println("resetting scene")
 			dialogueIndex = 0
 			clear()
-			loadGame(LANDSCAPE_VIEW, "test")
+			loadGame(LANDSCAPE_VIEW, scriptName)
 		} else {
-			delayNextDialogue(&status, time.Millisecond)
+			sendConfirmation(&status)
 		}
 	}
 }
@@ -825,7 +843,7 @@ func queueEvent(event eventFunc) {
 	EventQueue = append(EventQueue, event)
 }
 func nextDialogue(status *chan uint32) {
-	if LOADING {
+	if LOADING || WAITING_CONFIRMATION {
 		return
 	}
 
@@ -843,6 +861,15 @@ func nextDialogue(status *chan uint32) {
 
 	elementText := element.Line
 	switch element.Name {
+	case "delay":
+		f, err := strconv.ParseFloat(element.Action, 64)
+		if err != nil {
+			f = 0.5
+		}
+
+		fmt.Println("delaying by:", f)
+		delayNextDialogue(status, time.Duration(f)*time.Second)
+		break
 	case "defect":
 		name := strings.ToLower(element.Mood)
 		if _, ok := Factions[name]; ok {
@@ -902,9 +929,11 @@ func nextDialogue(status *chan uint32) {
 		for _, v := range element.Lines {
 			reply = append(reply, hud.NewSolidText(v, mgl32.Vec3{0.18, 0.255, 0.322}, Fonts[fontRegular]))
 		}
+		WAITING_CONFIRMATION = true
 		break
 	case "none":
 		releaseDialogue()
+		nextDialogue(status)
 		break
 	default:
 		prepareActor(status, element)
@@ -961,28 +990,24 @@ func prepareActor(status *chan uint32, element script.ScriptElement) {
 
 	// do not display sprites if the mood is blank
 	// this indicates that the actor is off screen
-	if element.Mood == "_" {
-		return
+	if element.Mood != "_" && element.Mood != "animation" {
+		charSprite[element.Name] = Actors[element.Name]
 	}
 
-	charSprite[element.Name] = Actors[element.Name]
-
 	// convert action into predefined parameters
-	shouldChangeSprite := prepareActorAnimation(status, &element, charSprite[element.Name], !element.HasDialogue())
+	shouldChangeSprite, isAnimated := prepareActorAnimation(status, &element, Actors[element.Name], !element.HasDialogue())
 
 	if shouldChangeSprite {
-		// if sprite, ok := Sprites[spriteKey(element)]; ok {
 		err := charSprite[element.Name].SetActiveTexture(spriteKey(element))
 		if err != nil {
 			fmt.Println("error loading sprite: ", err.Error())
 			DebugChannel <- fmt.Sprintf("actor (%s) is missing sprite (%s)", element.Name, element.Mood)
 		}
-		// } else {
-		// 	log.Println("sprite not found:", spriteKey(element))
-		// }
+
+		charSprite[element.Name].Silhouette = false
 	}
 
-	if !element.HasDialogue() {
+	if !element.HasDialogue() && !isAnimated {
 		nextDialogue(status)
 	}
 }
@@ -991,6 +1016,12 @@ func delayNextDialogue(status *chan uint32, duration time.Duration) {
 	go func() {
 		<-time.NewTimer(duration).C
 		*status <- 2 // send status update to listening channel
+	}()
+}
+
+func sendConfirmation(status *chan uint32) {
+	go func() {
+		*status <- 3 // send status update to listening channel
 	}()
 }
 
@@ -1013,7 +1044,7 @@ func elementToEmoteData(element script.ScriptElement) (*hud.AnimatedSprite, *sfx
 	return nil, nil
 }
 
-func prepareActorAnimation(status *chan uint32, element *script.ScriptElement, actor *Actor, autoNextDialogue bool) bool {
+func prepareActorAnimation(status *chan uint32, element *script.ScriptElement, actor *Actor, autoNextDialogue bool) (bool, bool) {
 
 	action := element.Mood
 	actionName := element.Action
@@ -1044,24 +1075,17 @@ func prepareActorAnimation(status *chan uint32, element *script.ScriptElement, a
 		} else {
 			log.Fatalf("no emote found with name: %s", actionName)
 		}
-		return false // return here because if it's an emote, we don't want to change the actor sprite
-	case "silhouette":
-		actor.Faded = true
-		actor.SetColorf(0, 0, 0)
-		return false
+		return false, true // return here because if it's an emote, we don't want to change the actor sprite
 	case "full":
 		actor.Faded = false
 		actor.SetColorf(1, 1, 1)
-		return false
+		return false, false
 	case "fade":
-		if actionName == "in" {
-			fmt.Println("actor fade in")
-			AsyncActorColor(actor, status, false)
-		} else {
-			fmt.Println("actor fade out")
-			AsyncActorColor(actor, status, true)
-		}
-		return false
+		fmt.Println("actor fade")
+		AsyncActorColor(actor, status, actionName != "in", func() {
+			delayNextDialogue(status, time.Millisecond)
+		})
+		return false, true
 	case "defect":
 		if _, ok := Factions[actor.name]; ok {
 			if actionName == "_" {
@@ -1071,24 +1095,31 @@ func prepareActorAnimation(status *chan uint32, element *script.ScriptElement, a
 				Factions[actor.name].SetScale(0.8)
 			}
 		}
-		return false
+		return false, false
 	case "rename":
 		Names[actor.name] = hud.NewSolidText(toTitle(actionName), hud.COLOR_WHITE, Fonts["bold"])
 		Names[actor.name].SetScale(float32(speakerScale))
-		return false
+		return false, false
 	default: // if the action isn't a special case like emotes, then it's probably a sprite animation
 		// move the actor if the action set the position
 		if anim, ok := ActorAnimations[actionName]; ok {
 			// fmt.Println("starting animation:", anim.Name)
-			go AsyncAnimateActor(actor, anim, status)
+			go AsyncAnimateActor(actor, anim, status, func() {
+				delayNextDialogue(status, time.Millisecond)
+			})
 		}
-		if action == "animation" {
-			return false
+		if action == "animation" || action == "_" {
+			return false, true
+		}
+		if action == "silhouette" {
+			actor.Silhouette = true
+			actor.SetColorf(0, 0, 0)
+			return false, false
 		}
 		break
 	}
 
-	return true
+	return true, false
 }
 
 func prepareBgm(element script.ScriptElement, status *chan uint32) {
@@ -1139,73 +1170,82 @@ func DrawText(view View, text *hud.Text, tx, ty float32) {
 /////////////////////////////////////////////
 // ANIMATIONS
 
-func AsyncActorColor(s *Actor, status *chan uint32, toBlack bool) {
+func AsyncActorColor(s *Actor, status *chan uint32, toBlack bool, done func()) {
 
 	s.Faded = true
 	var fadeFunc func(f float64) int
 	if toBlack {
+		s.SetColorf(1, 1, 1)
 		fadeFunc = func(f float64) int {
 			c := s.GetColor()
-			v := c.X() - float32(0.025)
+			v := c.X() - float32(0.015)
 			if v <= 0 {
 				s.SetColorf(0, 0, 0)
 				return -1
 			}
 			s.SetColorf(v, v, v)
+			fmt.Println("fading actor:", v)
 			return 0
 		}
 	} else {
+		s.SetColorf(0, 0, 0)
 		fadeFunc = func(f float64) int {
 			c := s.GetColor()
-			v := c.X() + float32(0.025)
+			v := c.X() + float32(0.015)
 			if v >= 1 {
 				s.SetColorf(1, 1, 1)
+				s.Faded = false
 				return -1
 			}
 			s.SetColorf(v, v, v)
+			fmt.Println("fading actor:", v)
 			return 0
 		}
 	}
 
 	loop := loop.New(FRAME_DURATION, fadeFunc, func() {
 		log.Println("finished actor fade")
-		s.Faded = false
+		if done != nil {
+			done()
+		}
 	})
 	loop.Start()
 }
 
 func AsyncStreamerVolume(s *sfx.Streamer, in bool) {
-	go func() {
-		if in {
-			fmt.Println("fading bgm in")
-			s.SetVolume(MinBgmVolume)
-			for s.GetVolume() < CurrentBgmVolume {
-				select {
-				case <-UniversalTicker:
-					f := s.GetVolume() + 0.5
-					fmt.Println("increasing volume:", f)
-					if f > CurrentBgmVolume {
-						f = CurrentBgmVolume
-					}
-					s.SetVolume(f)
-				}
+	var fadeFunc func(f float64) int
+	if in {
+		fmt.Println("fading bgm in")
+		s.SetVolume(MinBgmVolume)
+		fadeFunc = func(f float64) int {
+			volume := s.GetVolume() + 0.5
+			if volume > CurrentBgmVolume {
+				s.SetVolume(CurrentBgmVolume)
+				return -1
 			}
-		} else {
-			s.SetVolume(CurrentBgmVolume)
-			for s.GetVolume() > MinBgmVolume {
-				select {
-				case <-UniversalTicker:
-					f := s.GetVolume() - 0.5
-					if f < MinBgmVolume {
-						f = MinBgmVolume
-					}
-					s.SetVolume(f)
-				}
-			}
+			s.SetVolume(volume)
+			return 0
 		}
+	} else {
+		s.SetVolume(CurrentBgmVolume)
+		fadeFunc = func(f float64) int {
+			volume := s.GetVolume() - 0.5
+			if volume < MinBgmVolume {
+				s.SetVolume(MinBgmVolume)
+				return -1
+			}
+			s.SetVolume(volume)
+			return 0
+		}
+	}
 
-		fmt.Println("finished bgm fade")
-	}()
+	loop := loop.New(FRAME_DURATION, fadeFunc, func() {
+		log.Println("finished bgm fade")
+		// if done != nil {
+		// 	done()
+		// }
+	})
+	loop.Start()
 }
 
 func AsyncSpriteAlpha(s *hud.Sprite, status *chan uint32, in bool, done func()) {
@@ -1244,8 +1284,9 @@ func AsyncSpriteAlpha(s *hud.Sprite, status *chan uint32, in bool, done func()) 
 	loop.Start()
 }
 
-func AsyncAnimateActor(s *Actor, anim script.AnimationMetadata, status *chan uint32) {
+func AsyncAnimateActor(s *Actor, anim script.AnimationMetadata, status *chan uint32, done func()) {
 	originalPosition := s.GetPosition()
+	originalScale := s.GetScale()
 	// fmt.Println("original position:", originalPosition)
 	speed := anim.Speed
 
@@ -1253,12 +1294,18 @@ func AsyncAnimateActor(s *Actor, anim script.AnimationMetadata, status *chan uin
 	for _, frame := range anim.Frames {
 		startingPosition := s.GetPosition()
 		var targetPosition hud.Vec3
+		targetScale := originalScale
 		if frame.Reset {
 			targetPosition = originalPosition
 		} else if frame.Center {
-			targetPosition = s.GetCenter()
+			center := s.GetCenter()
+			targetPosition = center
+			targetScale = center.Z()
 		} else {
 			targetPosition = startingPosition
+			if frame.Scale != nil {
+				targetScale = *frame.Scale
+			}
 			if frame.X != nil {
 				targetPosition[0] = *frame.X
 			}
@@ -1277,6 +1324,8 @@ func AsyncAnimateActor(s *Actor, anim script.AnimationMetadata, status *chan uin
 
 		// this will move the actor to a target location
 		// this check uses the length of the vector to account for floating point precision issues
+
+		s.SetScale(targetScale)
 
 		for targetPosition.Sub(s.GetPosition()).Len() > 0.01 {
 			select {
@@ -1300,7 +1349,13 @@ func AsyncAnimateActor(s *Actor, anim script.AnimationMetadata, status *chan uin
 		}
 	}
 
-	*status <- 1 // send status update to listening channel
+	// loop := loop.New(FRAME_DURATION, fadeFunc, func() {
+	// 	log.Println("finished actor fade")
+	if done != nil {
+		done()
+	}
+	// })
+	// loop.Start()
 }
 
 /////////////////////////////////////////////

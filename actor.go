@@ -15,7 +15,8 @@ type Actor struct {
 	centerPosition hud.Vec3
 	centerScale    float32
 
-	Faded bool
+	Faded      bool
+	Silhouette bool
 }
 type animation struct {
 	start     *hud.Vec3
@@ -80,7 +81,7 @@ func (a *Actor) DrawEmoteIfActive(shader *gfx.Program) {
 }
 
 func (s *Actor) SetCenter(x, y, scale float32) {
-	s.centerPosition = hud.Vec3{x, y, 0}
+	s.centerPosition = hud.Vec3{x, y, scale}
 	s.centerScale = scale
 }
 func (a *Actor) GetCenter() hud.Vec3 {

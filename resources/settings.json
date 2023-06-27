@@ -108,6 +108,20 @@
 				"y": -0.95
 			}
 		},
+		"nagisa": {
+			"faction_name": "Tea Party",
+			"center_x": 0.075,
+			"center_y": -0.71,
+			"center_scale": 0.85,
+			"emote_offset_head": {
+				"x": 0,
+				"y": 0
+			},
+			"emote_offset_bubble": {
+				"x": 0.32,
+				"y": -0.95
+			}
+		},
 		"sumomo": {
 			"faction_name": "General Student Council",
 			"center_x": 0.18,
@@ -124,6 +138,22 @@
 		}
 	},
 	"animations": {
+		"center": {
+			"speed": 1,
+			"frames": [
+				{"center": true}
+			]
+		},
+		"seia_closer": {
+			"speed": 1,
+			"frames": [
+				{
+					"x": 0.11,
+					"y": -1,
+					"scale": 1.1
+				}
+			]
+		},
 		"bounce": {
 			"speed": 0.1,
 			"frames": [

@@ -58,6 +58,7 @@ type FrameMetadata struct {
 	Y      *float32 `json:"y,omitempty"`
 	AddX   *float32 `json:"add_x,omitempty"`
 	AddY   *float32 `json:"add_y,omitempty"`
+	Scale  *float32 `json:"scale,omitempty"`
 	Delay  *float32 `json:"delay,omitempty"`
 	Reset  bool     `json:"reset,omitempty"`
 	Center bool     `json:"center,omitempty"`
