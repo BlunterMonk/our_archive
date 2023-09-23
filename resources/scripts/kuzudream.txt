@@ -1,0 +1,133 @@
+[bg - black_screen - _]
+[sfx - kuzu01 - _]
+[??? - _ - _]
+Oh......?
+[clear - _ - _]
+[bg - kuzunoha - _]
+[bgm - theme_67 - _]
+[fade - black - in]
+[sfx - kuzu02 - _]
+[kuzunoha - _ - _]
+What are you doing here...?
+[sensei - _ - _]
+"That's what I'd like to know...."
+"....I don't remember coming here....."
+[sfx - kuzu03 - _]
+[kuzunoha - _ - _]
+.......really?
+[fade - black - out]
+[bg - kuzunoha_smile - _]
+[fade - black - in]
+[sfx - kuzu04 - _]
+[kuzunoha - _ - _]
+Don't tell me.... too much Sake....?
+[sensei - _ - _]
+"Not way!"
+[fade - black - out]
+[bg - kuzunoha_doorway - _]
+[kuzunoha - 00 - _]
+[fade - black - in]
+[sfx - kuzu05 - _]
+[kuzunoha - 03 - _]
+Now now, just a joke...
+[sfx - kuzu06 - _]
+[kuzunoha - 01 - _]
+Sensei, are you well? Are you eating enough....? 
+You're not sleeping too much are you?
+[sensei - _ - _]
+"I'm taking care of myself, I think..."
+[sfx - kuzu07 - _]
+[kuzunoha - 01 - _]
+So...... your days are peaceful, yes?
+[sensei - _ - _]
+"You could say that."
+[sfx - kuzu08 - _]
+[kuzunoha - 03 - _]
+Peace is a wonderful thing.....
+[sfx - kuzu09 - _]
+[kuzunoha - 04 - _]
+Although, you must know this to be true as well,
+[sfx - kuzu10 - _]
+[kuzunoha - 05 - _]
+Ambitions, ideals, greed......
+[sfx - kuzu11 - _]
+[kuzunoha - 06 - _]
+These are.... seeds of conflict.
+[sfx - kuzu12 - _]
+[kuzunoha - 06 - _]
+Just as there is no light without shadow... conflict will soon emerge from peace.
+[sfx - kuzu13 - _]
+[kuzunoha - 05 - _]
+Such is the nature of being human after all......
+[sfx - kuzu14 - _]
+[kuzunoha - 07 - _]
+Tell me, have you ever loved....? 
+[sfx - kuzu14b - _]
+[kuzunoha - 06 - _]
+Or perhaps.... yearned for something....?
+[none - _ - _]
+[sfx - dots - _]
+[delay - _ - 3]
+[sfx - kuzu15 - _]
+[kuzunoha - 00 - _]
+....huh, anxious?
+[sfx - kuzu16 - _]
+[kuzunoha - 05 - _]
+..........do not dwell on the inevitable.
+[sfx - kuzu17 - _]
+[kuzunoha - 01 - _]
+There can be no progress by wondering what could have been,
+[sfx - kuzu18 - _]
+[kuzunoha - 02 - _]
+Believe in your decisions, judgements, and your goals....
+[sensei - _ - _]
+"....I believe in my students."
+[sfx - kuzu19 - _]
+[kuzunoha - 00 - _]
+......ara ara.
+[sfx - kuzu20 - _]
+[kuzunoha - 02 - _]
+Already writing yourself out of this story?
+[sfx - kuzu21 - _]
+[kuzunoha - 04 - _]
+Your students rely on you Sensei.... more than you might realize.
+[sfx - kuzu22 - _]
+[kuzunoha - 02 - _]
+If you were to disappear.... what would become of their poor hearts?
+[sfx - kuzu23 - _]
+[kuzunoha - 09 - _]
+no one knows which way this story will unfold....
+[sensei - _ - _]
+"I......"
+[sfx - kuzu24 - _]
+[kuzunoha - 00 - _]
+......just food for thought.
+[sfx - kuzu25 - _]
+[kuzunoha - 11 - _]
+Well, you're an adult, surely the answer will come to you.
+[sfx - kuzu26 - _]
+[kuzunoha - 12 - _]
+We should stop there for today.
+[sfx - kuzu27 - _]
+[kuzunoha - 10 - _]
+Go back.... enjoy those days while they last.....
+[sfx - kuzu28 - _]
+[kuzunoha - 10 - _]
+Until then...... I'll be waiting.
+[fade - black - out]
+[clear - _ - _]
+[sfx - door_close - _]
+[delay - _ - 2]
+[bg - lounge - _]
+[fade - black - in]
+[sfx - birds - _]
+[_ - _ - _]
+(next thing I knew, it was already morning)
+[sensei - _ - _]
+"A dream huh....."
+[sfx - phone - _]
+[delay - _ - 3]
+[sensei - _ - _]
+"Can't stop now..."
+[delay - _ - 1]
+[fade - black - out]
