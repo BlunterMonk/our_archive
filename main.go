@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"image"
+	"image/png"
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"strconv"
@@ -261,7 +263,7 @@ func queueResources(view View, scriptName string) ([]loadEvent, *script.Metadata
 	releaseResources()
 
 	// init resource containers
-	loads = append(loads, loadEvent{Object: "regular", Key: "NotoSans-Regular", Category: "font"})
+	loads = append(loads, loadEvent{Object: "regular", Key: "NotoSansJP-Regular", Category: "font"})
 	loads = append(loads, loadEvent{Object: "bold", Key: "NotoSans-Bold", Category: "font"})
 	loads = append(loads, loadEvent{Object: "ui", Key: "text_option_single", Category: "sprite"})
 	loads = append(loads, loadEvent{Object: "ui", Key: "text_option_a", Category: "sprite"})
@@ -953,7 +955,7 @@ func prepareActor(status *chan uint32, element script.ScriptElement) {
 
 	// only display dialogue if there is dialogue
 	if element.Line != "" && len(element.Lines) > 0 {
-		dialogue = hud.NewText(element.Line, hud.COLOR_WHITE, Fonts[fontRegular])
+		dialogue = hud.NewText(element.Lines, hud.COLOR_WHITE, Fonts[fontRegular])
 		dialogue.SetScale(CurrentFontSize)
 		dialogue.AsyncAnimate(status)
 	}
@@ -1439,4 +1441,37 @@ func errorsToString(errors []error) string {
 
 func inside(rect image.Rectangle, x, y int) bool {
 	return x >= rect.Min.X && x <= rect.Max.X && y >= rect.Min.Y && y <= rect.Max.Y
+}
+
+func LoadImageFromFile(imgPath string) image.Image {
+	if _, err := os.Stat(imgPath); os.IsNotExist(err) {
+		panic(fmt.Errorf("file does not exist, aborting script: %v", imgPath))
+	}
+	imageFile, err := os.Open(imgPath)
+	if err != nil {
+		panic(err)
+	}
+	defer imageFile.Close()
+	img, _, err := image.Decode(imageFile)
+	if err != nil {
+		panic(err)
+	}
+	return img
+}
+
+func SaveImage(rgba image.Image, filename string) error {
+	// Ensure the directories exist before writing the file
+	err := os.MkdirAll(filepath.Dir(filename), 0755)
+	if err != nil {
+		return err
+	}
+
+	out, err := os.Create(filename)
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
+
+	png.Encode(out, rgba)
+	return nil
 }

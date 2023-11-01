@@ -35,7 +35,7 @@ func Init() error {
 	// sfx
 	// sample rate: 22050
 	// buffer size: 734
-	return speaker.Init(44100, 1500) //s.format.SampleRate.N(time.Second/30))
+	return speaker.Init(48000, 3000) //s.format.SampleRate.N(time.Second/30))
 }
 
 func NewStreamer(filename string) (*Streamer, error) {

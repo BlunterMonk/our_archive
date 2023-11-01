@@ -331,7 +331,10 @@ NOTE: if an animation is set to a speed of 1, it will complete instantly
 
 # Troubleshooting
 
-・if audio sounds weird, make sure the sample rate on the file is 44100
+・if audio sounds weird, make sure the sample rate on the file is 48000
 ・if the app crashes, 99% of the time it's because something failed to load
   make sure to follow the instructions in the resources section to the letter.
   and properly convert any files if needed.
+
+
+https://huggingface.co/Dolyfin/Dolyfin/resolve/main/FuxuanEN1.3_e140_s21420.zip

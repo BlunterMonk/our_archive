@@ -35,10 +35,13 @@ var (
 	COLOR_BLACK = mgl32.Vec3{0, 0, 0}
 )
 
-func NewText(content string, color mgl32.Vec3, font *v41.Font) *Text {
+func NewText(content []string, color mgl32.Vec3, font *v41.Font) *Text {
 
 	// setup text output
-	lines := strings.Split(wrapString(content, 79), "\n")
+	lines := make([]string, 0)
+	for _, v := range content {
+		lines = append(lines, strings.Split(wrapString(v, 70), "\n")...)
+	}
 	dialogue := make([]string, 0)
 	// create text objects to display
 	textObjects := make([]*v41.Text, 0)
@@ -55,13 +58,13 @@ func NewText(content string, color mgl32.Vec3, font *v41.Font) *Text {
 		Text:        lines,
 		Output:      dialogue,
 		TextObjects: textObjects,
-		spacing:     25.0,
+		spacing:     5.0,
 		font:        font,
 	}
 }
 
 func NewSolidText(content string, color mgl32.Vec3, font *v41.Font) *Text {
-	s := NewText(content, color, font)
+	s := NewText([]string{content}, color, font)
 	s.Output = s.Text
 	return s
 }

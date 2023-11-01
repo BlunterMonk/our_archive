@@ -55,8 +55,8 @@
 		},
 		"kuzunoha": {
 			"faction_name": "",
-			"center_x": 0.18,
-			"center_y": -0.71,
+			"center_x": 0.05,
+			"center_y": -0.75,
 			"center_scale": 0.85,
 			"emote_offset_head": {
 				"x": 0,
