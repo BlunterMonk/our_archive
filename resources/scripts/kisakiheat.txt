@@ -1,0 +1,19 @@
+[bg - shj_vip_district - _]
+[clone - shjmob - mob_1]
+[clone - shjmob - mob_2]
+[mob_1 - 00 - move_right]
+[mob_2 - 00 - move_right]
+[clear - _ - _]
+[fade - black - in]
+[none - _ - _]
+(I came to Shanhaijing to complete some errands.)
+[none - _ - _]
+(By chance, the one I needed to see appeared before my very eyes.)
+[sfx - footstep_01 - _]
+[kisaki - fade - in]
+[kisaki - 00 - _]
+Ah, Sensei.
+[kisaki - 01 - _]
+I wasn't expecting to see you here.
+[kisaki - 02 - _]
+Did you have business with me?

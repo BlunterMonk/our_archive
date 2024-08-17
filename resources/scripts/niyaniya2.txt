@@ -1,0 +1,137 @@
+[professor_smug - 00 - _]
+[bgm - theme_138 - _]
+[bg - drawingroom - _]
+[delay - _ - 1]
+[professor_smug - 00 - _]
+....homu homu.
+[professor_smug - 02 - _]
+Let's see now....
+[delay - _ - 0.25]
+[professor_smug - emote - dots]
+[delay - _ - 0.25]
+[professor_smug - 03 - _]
+Yes.... that's perfect....
+[professor_smug - 04 - _]
+....now to set it in motion.
+[none - _ - _]
+[sfx - radio - _]
+[delay - _ - 0.25]
+[sfx - answer - _]
+[delay - _ - 1]
+[professor_smug - 02 - _]
+Hello.... it's me.
+[professor_smug - 03 - _]
+I need a favor...
+[professor_smug - 05 - _]
+You'll do it? Great! Here's what I need you to do....
+[fade - black - out]
+[clear - _ - _]
+[bg - black_screen - _]
+[fade - black - in]
+[professor_smug - _ - _]
+Bring me that "Sensei"....
+[fade - black - out]
+[bgm - fade - out]
+[clear - _ - _]
+[bg - drawingroom_night - _]
+[delay - _ - 1]
+[fade - black - in]
+[delay - _ - 1]
+[sensei - _ - _]
+"It's rare the Sukeban ask for help...."
+"But it sounded important."
+[sensei - _ - _]
+"This should be the place...."
+[delay - _ - 0.5]
+[sensei - _ - _]
+"Hello....?"
+[sfx - footstep_01 - _]
+[professor_smug - fade - in]
+[delay - _ - 1]
+[bgm - theme_92 - _]
+[professor_smug - 03 - _]
+Good evening..... Sensei of Schale....
+[professor_smug - 01 - _]
+I hope you're doing well.
+[professor_smug - 02 - _]
+Would you like some tea?
+[sensei - _ - _]
+"Uhm... sorry."
+"Who might you be?"
+[professor_smug - 04 - _]
+Goodness me, already asking personal questions?
+[professor_smug - 02 - _]
+Who I am isn't of much importance, as opposed to what I am.
+[professor_smug - 03 - _]
+We have a lot in common... You could say I'm an educator, just like yourself.
+[professor_smug - 06 - _]
+I'll get straight to the point.
+[professor_smug - 02 - _]
+I'll be taking "that" from you.
+[sensei - _ - _]
+"......"
+[none - _ - _]
+[sensei - _ - _]
+Run.
+[professor_smug - 00 - enter_right]
+[clear - _ - _]
+[sfx - run_away - _]
+[delay - _ - 1]
+[professor_smug - 00 - _]
+Oh no you don't!
+[sfx - run_to - _]
+[professor_smug - 07 - move_center]
+I can't let you do that.... Sensei.
+[sfx - door_close - _]
+[professor_smug - 08 - _]
+Won't you hear me out...?
+[sensei - _ - _]
+"What do you want from me....?"
+[professor_smug - 03 - _]
+Oh nothing impossible....
+[professor_smug - 09 - _]
+Just your genes....
+[sensei - _ - _]
+"....!?"
+[professor_smug - 11 - _]
+You seem to hold a higher intellect than most. Your students never lose, as if you have a special trait not found in Kivotos.
+[professor_smug - 12 - _]
+Effortlessly thwarting all my strategies.... I cannot be outdone!
+[professor_smug - 09 - _]
+I'm going to take this special trait of yours, and combine it with my own genius...
+[professor_smug - 03 - _]
+Thus making the perfect strategist, then Kivotos will be mine!
+[professor_smug - 14 - _]
+So if you don't mind, I'll be extracting that information.
+[sfx - upset - _]
+[professor_smug - 12 - _]
+To think I was beat by this bumbling adult of all people....
+[professor_smug - 07 - _]
+This should be easy....
+[sensei - _ - _]
+"!!"
+[sfx - hit - _]
+[delay - _ - 0.5]
+[sfx - fall - _]
+[clear - _ - _]
+[bg - black_screen - _]
+[professor_smug - _ - _]
+Don't move alright... this'll be over quickly!
+[delay - _ - 1]
+[fade - black - out]
+[delay - _ - 1]
+[bg - smug_top2 - _]
+[fade - black - in]
+[delay - _ - 2]
+[professor_smug - _ - _]
+W-Wait... Sensei....
+[professor_smug - _ - _]
+I was just joking please....
+[clear - _ - _]
+[delay - _ - 0.25]
+[sfx - zipper - _]
+[delay - _ - 0.25]
+[professor_smug - _ - _]
+HEY... P-Put that thing away...!
+[delay - _ - 1]
+[fade - black - out]

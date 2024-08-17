@@ -1,0 +1,9 @@
+[bg - rabu_edit - _]
+[fade - black - in]
+[delay - _ - 1]
+[rabu - 15 - _]
+[delay - _ - 0.5]
+There's no one around right....
+[delay - _ - 0.5]
+[rabu - 00 - _]
+Good....

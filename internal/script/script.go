@@ -19,9 +19,10 @@ const (
 )
 
 type Script struct {
-	elements []ScriptElement
+	Elements []ScriptElement
 }
 
+// [name - mood - action]
 type ScriptElement struct {
 	Index  int
 	Name   string // name of speaker
@@ -76,7 +77,7 @@ type Position struct {
 func NewScriptFromFile(filename string) *Script {
 	e := LoadScript(filename)
 	return &Script{
-		elements: e,
+		Elements: e,
 	}
 }
 
@@ -224,11 +225,7 @@ func LoadMetadata(filename string) (*Metadata, error) {
 }
 
 func (s *Script) Get(index int) ScriptElement {
-	return s.elements[index]
-}
-
-func (s *Script) Elements() []ScriptElement {
-	return s.elements
+	return s.Elements[index]
 }
 
 func (s *ScriptElement) ToString() string {

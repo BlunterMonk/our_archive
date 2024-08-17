@@ -44,6 +44,9 @@ func (v Vec3) Len() float32 {
 
 type Mat4 mat4.T
 
+func (mat *Mat4) T() *mat4.T {
+	return (*mat4.T)(mat)
+}
 func (mat *Mat4) Print() {
 	fmt.Printf("[%v\n%v\n%v\n%v]\n", mat[0], mat[1], mat[2], mat[3])
 }
@@ -63,11 +66,24 @@ func (mat *Mat4) Transpose() *Mat4 {
 	return (*Mat4)(m)
 }
 
+func ProjMatrix(windowWidth, windowHeight float32) Mat4 {
+	prj := mat4.From(&mat4.Ident)
+	prj = *prj.ScaleVec3(&v3.T{1, windowWidth / windowHeight, 1})
+	return (Mat4)(prj)
+}
+
+// func (mat *Mat4) Scale(scale float32) *Mat4 {
+// 	// scale
+// 	sc := mat4.From(&mat4.Ident)
+// 	sc = *sc.ScaleVec3(&v3.T{float32(w) * scale, scale, scale})
+// 	return *mat.AssignMul(mat, &sc)
+// }
+
 func NewMat4() Mat4 {
 	return (Mat4)(mat4.From(&mat4.Ident))
 }
 
-func CalculateTransform(width, height, scale float32, position v3.T) Mat4 {
+func CalculateTransform(prj Mat4, width, height, scale float32, position v3.T) Mat4 {
 	// convert parameters into a transform
 	out := mat4.From(&mat4.Ident)
 
@@ -75,23 +91,25 @@ func CalculateTransform(width, height, scale float32, position v3.T) Mat4 {
 	w := float64(width)
 	h := float64(height)
 	// determine longer side
-	w = math.Min(w, h) / math.Max(w, h)
+	r := math.Min(w, h) / math.Max(w, h)
 
 	// identity matrix to build other matrices from
 	m := mat4.From(&mat4.Ident)
 
-	// get 2D projection matrix for the aspect ratio
-	prj := mat4.From(&mat4.Ident)
-	prj = *prj.ScaleVec3(&v3.T{1, float32(16) / float32(9), 1})
-
 	// scale
 	sc := mat4.From(&mat4.Ident)
-	sc = *sc.ScaleVec3(&v3.T{float32(w) * scale, scale, scale})
+	if w > h {
+		sc = *sc.ScaleVec3(&v3.T{scale, float32(r) * scale, scale})
+	} else if h > w {
+		sc = *sc.ScaleVec3(&v3.T{float32(r) * scale, scale, scale})
+	} else {
+		sc = *sc.ScaleVec3(&v3.T{float32(r) * scale, float32(r) * scale, scale})
+	}
 
 	// apply scale
 	out = *m.AssignMul(&out, &sc)
 	// apply projection to 2D
-	out = *m.AssignMul(&out, &prj)
+	out = *m.AssignMul(&out, prj.T())
 	// screen space translations need to be normalized
 	out = *m.Translate(&position)
 	// open gl is column major, with translation in the right-most values,

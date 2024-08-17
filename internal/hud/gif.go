@@ -89,8 +89,8 @@ func (a *AnimatedSprite) GetNextFrame(currentFrame int) (int, time.Duration) {
 	return index, (time.Duration(nextDelay) * time.Millisecond * 10)
 }
 
-func (a *AnimatedSprite) DrawFrame(frame int, position Vec3, shader *gfx.Program) {
-	transform := CalculateTransform(a.Width(), a.Height(), a.scale, position.ToV3())
+func (a *AnimatedSprite) DrawFrame(proj Mat4, frame int, position Vec3, shader *gfx.Program) {
+	transform := CalculateTransform(proj, a.Width(), a.Height(), a.scale, position.ToV3())
 
 	// draw any previous frames if the disposal is none
 	for i := 0; i < frame; i++ {

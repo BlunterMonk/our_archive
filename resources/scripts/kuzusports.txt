@@ -1,0 +1,103 @@
+[bg - lounge - _]
+[bgm - theme_03 - _]
+[fade - black - in]
+[delay - _ - 1]
+[kuzunoha - 02 - _]
+[delay - _ - 0.5]
+Ah Sensei....
+[delay - _ - 0.5]
+[kuzunoha - 01 - _]
+You're finally awake....
+[_ - _ - _]
+(Kuzunoha sat there in the lounge on a giant bean bag chair watching TV)
+[Commentator - _ - _]
+"We'll be back right after this commercial break!"
+[kuzunoha - 02 - _]
+Have you seen this....?
+[kuzunoha - 01 - _]
+Apparently it's called a "ball game"
+[sensei - _ - _]
+"Yeah it's a popular competitive sport."
+[kuzunoha - 03 - _]
+A competitive sport you say...?
+[kuzunoha - 05 - _]
+I see... so it's a type battle yes?
+[kuzunoha - 05 - _]
+They are meant to pit their bodies and minds to this deadly bout of strength?
+[sensei - _ - _]
+"Well... I wouldn't say deadly..."
+[kuzunoha - 03 - _]
+How interesting..... so what is on the line?
+[kuzunoha - 01 - _]
+Is it the rights to some lord's land perhaps?
+[kuzunoha - 04 - _]
+Or maybe those defeated will be absorbed into the victors territory?
+[kuzunoha - 03 - _]
+By the way where are the "Tigers" I keep hearing about? I only see the humans playing...?
+[sensei - _ - _]
+"Uhh no nothing like that..."
+"They just play for fun."
+[kuzunoha - 06 - _]
+For fun huh....?
+[kuzunoha - 05 - _]
+My my how wonderful... to think they would battle to the death for nothing more than entertainment!
+[sensei - _ - _]
+"No one's dying!"
+[Commentator - _ - _]
+"Aaaand we're back!"
+[kuzunoha - 04 - _]
+Oh the battle has returned.... what great timing. Won't you join me?
+[Commentator - _ - _]
+"It's the bottom of the 9th, bases are loaded... will the Tigers take it home!?"
+[kuzunoha - 03 - _]
+Sensei look, it seems the decisive moment is upon us!
+[Commentator - _ - _]
+"On the plate is an Ace among the masses, what will he throw to close out this game?"
+[kuzunoha - 06 - _]
+It seems they're preparing to attack now...!
+[Commentator - _ - _]
+"Oh that's a strike... the Tigers just need one clean hit and they can win!"
+[sensei - _ - _]
+"I'm starting to sweat here...."
+[kuzunoha - 01 - _]
+Let's take a bath later then.... oh look here comes another attack!
+[Commentator - _ - _]
+"ANOTHER STRIKE!"
+[kuzunoha - 01 - _]
+The vanguard seems to be in a bind, luckily their ally has so much armor!
+[Commentator - _ - _]
+"It all comes down to this! Here comes the pitch.....!"
+[delay - _ - 2]
+[sfx - baseball_hit_cheer - _]
+[Commentator - _ - _]
+"IT'S A HIT! A CLEAN HIT!"
+[kuzunoha - 03 - _]
+Marvelous, that child hit it!
+[kuzunoha - 00 - _]
+They're all in a frenzy... Sensei what happens next?
+[sensei - _ - _]
+"They run home"
+[kuzunoha - 02 - _]
+Home...? What about the soldiers left alive?
+[sensei - _ - _]
+"Again no one's dying!"
+[kuzunoha - 01 - _]
+I see... so after they all come back "home".... victory is declared?
+[sensei - _ - _]
+"You could say that"
+[kuzunoha - 03 - _]
+I'm impressed, what a splendid show!
+[none - _ - _]
+[delay - _ - 1]
+[sensei - _ - _]
+"What would I do without you"
+[kuzunoha - 01 - _]
+[sfx - footstep_01 - _]
+[kuzunoha - fade - out]
+[kuzunoha - _ - kuzunoha_closer]
+[kuzunoha - fade - in]
+[kuzunoha - 00 - _]
+[delay - _ - 1]
+[kuzunoha - 00 - _]
+Well... revel in knowing you never will be.
+[fade - black - out]

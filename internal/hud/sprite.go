@@ -78,6 +78,10 @@ func NewSpriteFromFile(filename string) (*Sprite, error) {
 	}, err
 }
 
+func Clone(src *Sprite, dst *Sprite) {
+	
+}
+
 func (s *Sprite) AddTexture(key string, texture *gfx.Texture) {
 	s.textures[key] = texture
 }
@@ -196,10 +200,14 @@ func (s *Sprite) drawTexture(m Mat4, shader *gfx.Program, texture *gfx.Texture) 
 	texture.UnBind()
 }
 
-func (s *Sprite) GetTransform() Mat4 {
-	return CalculateTransform(s.Width(), s.Height(), s.scale, s.position.ToV3())
+func (s *Sprite) GetTransform(proj Mat4) Mat4 {
+	return CalculateTransform(proj, s.Width(), s.Height(), s.scale, s.position.ToV3())
 }
 
 func (s *Sprite) Translate(x, y, z float32) {
 	s.position = Vec3{s.position.X() + x, s.position.Y() + y, s.position.Z() + z}
+}
+
+func (s *Sprite) GetTextures() map[string]*gfx.Texture {
+	return s.textures
 }

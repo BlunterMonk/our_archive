@@ -135,11 +135,73 @@
 				"x": 0.25,
 				"y": -1.14
 			}
+		},
+		"rabu": {
+			"faction_name": "",
+			"center_x": -0.18,
+			"center_y": -0.81,
+			"center_scale": 0.99,
+			"emote_offset_head": {
+				"x": 0,
+				"y": 0
+			},
+			"emote_offset_bubble": {
+				"x": 0.08,
+				"y": -1.15
+			}
+		},
+		"professor_smug": {
+			"faction_name": "",
+			"center_x": -0.08,
+			"center_y": -0.65,
+			"center_scale": 0.87,
+			"emote_offset_head": {
+				"x": 0,
+				"y": 0
+			},
+			"emote_offset_bubble": {
+				"x": 0.2,
+				"y": -0.9
+			}
+		},
+		"kisaki": {
+			"faction_name": "",
+			"center_x": -0.03,
+			"center_y": -0.81,
+			"center_scale": 0.88,
+			"emote_offset_head": {
+				"x": 0,
+				"y": 0
+			},
+			"emote_offset_bubble": {
+				"x": -0.23,
+				"y": -0.92
+			}
+		},
+		"takane": {
+			"faction_name": "",
+			"center_x": -0.08,
+			"center_y": -0.75,
+			"center_scale": 0.88,
+			"emote_offset_head": {
+				"x": 0,
+				"y": 0
+			},
+			"emote_offset_bubble": {
+				"x": 0.16,
+				"y": -1.04
+			}
 		}
 	},
 	"animations": {
 		"center": {
 			"speed": 1,
+			"frames": [
+				{"center": true}
+			]
+		},
+		"move_center": {
+			"speed": 0.05,
 			"frames": [
 				{"center": true}
 			]
@@ -151,6 +213,16 @@
 					"x": 0.11,
 					"y": -1,
 					"scale": 1.1
+				}
+			]
+		},
+		"kuzunoha_closer": {
+			"speed": 1,
+			"frames": [
+				{
+					"x": 0,
+					"y": -1.29,
+					"scale": 1.3
 				}
 			]
 		},
@@ -202,11 +274,35 @@
 				}
 			]
 		},
-		"move_left": {
-			"speed": 0.001,
+		"enter_left": {
+			"speed": 1,
 			"frames": [
 				{
-					"x": -0.15
+					"x": -1.5
+				}
+			]
+		},
+		"enter_right": {
+			"speed": 1,
+			"frames": [
+				{
+					"x": 1.5
+				}
+			]
+		},
+		"move_left": {
+			"speed": 0.05,
+			"frames": [
+				{
+					"x": -0.5
+				}
+			]
+		},
+		"move_right": {
+			"speed": 0.05,
+			"frames": [
+				{
+					"x": 0.5
 				}
 			]
 		},

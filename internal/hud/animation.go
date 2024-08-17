@@ -74,8 +74,8 @@ func (a *Animation) IsAnimating() bool {
 	return a.isAnimating
 }
 
-func (a *Animation) Draw(position Vec3, shader *gfx.Program) {
-	a.data.DrawFrame(a.currentFrame, position, shader)
+func (a *Animation) Draw(proj Mat4, position Vec3, shader *gfx.Program) {
+	a.data.DrawFrame(proj, a.currentFrame, position, shader)
 }
 
 func (a *Animation) GetName() string {

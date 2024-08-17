@@ -33,6 +33,10 @@ func NewActor(name string) *Actor {
 	}
 }
 
+func (a *Actor) GetTextures() map[string]*gfx.Texture {
+	return a.Sprite.GetTextures()
+}
+
 func (a *Actor) AddEmoteData(name string, offset hud.Vec3) {
 	// fmt.Println("adding emote data for:", name, offset)
 	a.emoteOffsets[name] = offset
@@ -44,6 +48,10 @@ func (a *Actor) AddSpriteData(mood string, texture *gfx.Texture) {
 
 func (a *Actor) SetTexture(key string, texture *gfx.Texture) error {
 	a.Sprite.AddTexture(key, texture)
+	return a.Sprite.SetActiveTexture(key)
+}
+
+func (a *Actor) SetActiveTexture(key string) error {
 	return a.Sprite.SetActiveTexture(key)
 }
 
@@ -62,13 +70,13 @@ func (a *Actor) AnimateEmote(name string, emoteData *hud.AnimatedSprite, callbac
 	})
 }
 
-func (a *Actor) Draw(shader *gfx.Program) {
-	a.Sprite.Draw(a.GetTransform(), shader)
+func (a *Actor) Draw(shader *gfx.Program, proj hud.Mat4) {
+	a.Sprite.Draw(a.GetTransform(proj), shader)
 	// draw the emote if it's active
-	a.DrawEmoteIfActive(shaderProgram)
+	a.DrawEmoteIfActive(shaderProgram, proj)
 }
 
-func (a *Actor) DrawEmoteIfActive(shader *gfx.Program) {
+func (a *Actor) DrawEmoteIfActive(shader *gfx.Program, proj hud.Mat4) {
 	if a.emoteAnimation == nil || !a.emoteAnimation.IsAnimating() {
 		return
 	}
@@ -77,7 +85,7 @@ func (a *Actor) DrawEmoteIfActive(shader *gfx.Program) {
 	// fmt.Println(a.emoteOffsets)
 	// decide offset based on emote type
 	offset := a.emoteOffsets[a.emoteAnimation.GetName()]
-	a.emoteAnimation.Draw(a.GetPosition().Sub(offset), shader)
+	a.emoteAnimation.Draw(proj, a.GetPosition().Sub(offset), shader)
 }
 
 func (s *Actor) SetCenter(x, y, scale float32) {

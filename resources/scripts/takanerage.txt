@@ -1,0 +1,38 @@
+[bg - takane - _]
+[takane - 00 - _]
+Ah, good morning Sensei...
+[takane - 01 - _]
+Are you here for the event?
+[sensei - _ - _]
+"Good morning Takane...."
+"...glad to see you in high spirits."
+[takane - 03 - _]
+But of course! 
+Today is the semi-annual doujin market event!
+[takane - 00 - _]
+With the amount of works there are... there's so much for me to do!
+[takane - 04 - _]
+This is like the world cup for me!
+[sensei - _ - _]
+"That's great to hear!"
+"You're so cute when you get excited."
+[takane - emote - dots]
+[takane - 14 - _]
+.....
+[takane - 06 - _]
+...sensei.
+[sensei - _ - _]
+"Oh, right, time and place."
+[takane - 04 - _]
+A-Anyhow.... is there anything you're looking forward to seeing Sensei?
+[sensei - _ - _]
+"As a matter of fact....!"
+"Looking for some Roads of Hot Iron IV merch."
+[takane - 00 - _]
+Is that so... what kind of book is it?
+[sensei - _ - _]
+"Oh, no it's not a book series... I think."
+[takane - 02 - _]
+Ah I see, so a game perhaps?
+[takane - 03 - _]
+To be quite honest I'm not 

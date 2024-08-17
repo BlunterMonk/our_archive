@@ -23,9 +23,24 @@ import (
 	"github.com/BlunterMonk/our_archive/internal/script"
 	"github.com/BlunterMonk/our_archive/pkg/gfx"
 	"github.com/BlunterMonk/our_archive/pkg/sfx"
+	"github.com/alecthomas/kingpin"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
+)
+
+const (
+	fontRegular           = "regular"
+	fontBold              = "bold"
+	spriteReplySingle     = "text_option_single"
+	spriteReplyDoubleA    = "text_option_a"
+	spriteReplyDoubleB    = "text_option_b"
+	spriteDialogueOverlay = "dialogue_bg"
+	spriteDialogueBar     = "dialogue_bar"
+	spriteAutoOn          = "auto_on"
+	spriteAutoOff         = "auto_off"
+	spriteMenuButton      = "menu"
+	spriteEmoteBalloon    = "balloon"
 )
 
 var (
@@ -41,14 +56,23 @@ var (
 		WindowWidth:  1280,
 		WindowHeight: 720,
 	}
+	// PORTRAIT_VIEW = View{
+	// 	speakerX:     float32(0),
+	// 	speakerY:     float32(0),
+	// 	dialogueX:    float32(0),
+	// 	dialogueY:    float32(0),
+	// 	WindowWidth:  720,
+	// 	WindowHeight: 1280,
+	// }
 	PORTRAIT_VIEW = View{
-		speakerX:     float32(0),
-		speakerY:     float32(0),
-		dialogueX:    float32(0),
-		dialogueY:    float32(0),
-		WindowWidth:  720,
-		WindowHeight: 1280,
+		speakerX:     float32(124),
+		speakerY:     float32(515),
+		dialogueX:    float32(450),
+		dialogueY:    float32(573),
+		WindowWidth:  1280,
+		WindowHeight: 720,
 	}
+	CURRENT_VIEW     = LANDSCAPE_VIEW
 	speakerScale     = 1.2
 	dialogueDone     bool
 	dialogueIndex    = -1
@@ -74,25 +98,15 @@ var (
 	status       = make(chan uint32)
 
 	// static assets
-	fontRegular           = "regular"
-	fontBold              = "bold"
 	dialogue, subjectName *hud.Text
-	reply                 []*hud.Text
+	reply                 []*Reply
 	fade                  *hud.Sprite
-	spriteReplySingle     = "text_option_single"
-	spriteReplyDoubleA    = "text_option_a"
-	spriteReplyDoubleB    = "text_option_b"
-	spriteDialogueOverlay = "dialogue_bg"
-	spriteDialogueBar     = "dialogue_bar"
-	spriteAutoOn          = "auto_on"
-	spriteAutoOff         = "auto_off"
-	spriteMenuButton      = "menu"
-	spriteEmoteBalloon    = "balloon"
 
 	// dynamic assets
 	Fonts           map[string]*v41.Font
 	charSprite      map[string]*Actor
 	Actors          map[string]*Actor
+	Clones          map[string]string
 	ActorAnimations map[string]script.AnimationMetadata
 	Backgrounds     map[string]*hud.Sprite
 	Emotes          map[string]*hud.AnimatedSprite
@@ -113,6 +127,15 @@ var (
 	DEBUG_TEXT           string
 	LOADING              = false
 	WAITING_CONFIRMATION = false
+
+	program        = kingpin.New("our_archive", "our_archive")
+	flagScriptName = program.Flag("script", "name of the script to run").Short('s').String()
+	// flagLogLevel = program.Flag("log", "log level").String()
+
+	// HUD Rects
+	rectReplySingle  = image.Rect(200, 265, 1080, 340)
+	rectReplyDoubleA = image.Rect(200, 220, 1080, 290)
+	rectReplyDoubleB = image.Rect(200, 315, 1080, 380)
 )
 
 const (
@@ -136,6 +159,18 @@ type View struct {
 	WindowWidth  int
 	WindowHeight int
 }
+type Reply struct {
+	*hud.Text
+	Position hud.Vec2
+	Active   bool
+	Sprite   *hud.Sprite
+	start    *hud.Animation
+	end      *hud.Animation
+}
+
+func (r *Reply) IsAnimating() bool {
+	return r.start.IsAnimating() || r.end.IsAnimating()
+}
 
 // in Open GL, Y starts at the bottom
 
@@ -146,16 +181,25 @@ func init() {
 
 var scriptName string
 
+// go run ./... -ldflags "-H windowsgui" "rabu"
 func main() {
 
-	if len(os.Args) > 3 {
-		scriptName = os.Args[3]
+	_, err := program.Parse(os.Args[1:])
+	if err != nil {
+		_, err := program.Parse(os.Args[3:])
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if flagScriptName != nil && *flagScriptName != "" {
+		scriptName = *flagScriptName
 	} else {
 		scriptName = "test"
 	}
 
-	loadGame(LANDSCAPE_VIEW, scriptName)
-	runGame(LANDSCAPE_VIEW, scriptName)
+	loadGame(CURRENT_VIEW, scriptName)
+	runGame(CURRENT_VIEW, scriptName)
 }
 
 func loadScriptFilenames() []string {
@@ -212,7 +256,6 @@ func loadResource(load loadEvent) error {
 				Sounds[key], err = sfx.NewStreamer(fmt.Sprintf("./resources/sfx/%s.mp3", key))
 			}
 		}
-		break
 	case "name":
 		if _, ok := Names[key]; !ok {
 			Names[key] = hud.NewSolidText(toTitle(key), hud.COLOR_WHITE, Fonts["bold"])
@@ -226,6 +269,12 @@ func loadResource(load loadEvent) error {
 			Factions[name].SetScale(0.8)
 		}
 	case "actor":
+		originalName := objectName
+		if k, ok := Clones[objectName]; ok {
+			// fmt.Println("replacing cloned name", objectName, k)
+			originalName = k
+		}
+
 		if _, ok := Actors[objectName]; !ok {
 			// need to create the actor in the same thread as the sprites
 			// for whatever reason, when the sprite and actor are created separately
@@ -234,21 +283,21 @@ func loadResource(load loadEvent) error {
 		}
 
 		// fmt.Printf("loading %s texture for %s\n", key, objectName)
-		err = Actors[objectName].LoadTexture(key, fmt.Sprintf("./resources/%s/%s/%s.png", category, objectName, key))
-		break
+		err = Actors[objectName].LoadTexture(key, fmt.Sprintf("./resources/%s/%s/%s-%s.png", category, originalName, originalName, key))
 	case "sprite":
 		Sprites[key], err = hud.NewSpriteFromFile(fmt.Sprintf("./resources/%s/%s.png", objectName, key))
 		if key == spriteEmoteBalloon {
 			Sprites[key].SetScale(0.085)
 		}
-		break
 	case "overlay":
 		fade = hud.NewSprite()
 		err = fade.LoadTexture("black", "./resources/bg/black_screen.jpeg")
+		if err != nil {
+			return err
+		}
 		err = fade.LoadTexture("white", "./resources/bg/white_screen.jpeg")
 		fade.SetPositionf(0, 0, 0)
 		fade.SetAlpha(0)
-		break
 	}
 
 	return err
@@ -275,6 +324,7 @@ func queueResources(view View, scriptName string) ([]loadEvent, *script.Metadata
 	loads = append(loads, loadEvent{Object: "ui", Key: "menu", Category: "sprite"})
 	loads = append(loads, loadEvent{Object: "ui", Key: "balloon", Category: "sprite"})
 	loads = append(loads, loadEvent{Object: "", Key: "", Category: "overlay"})
+	loads = append(loads, loadEvent{Object: "sfx", Key: "touch", Category: "sfx"})
 
 	fmt.Println("system resources loaded")
 
@@ -284,15 +334,23 @@ func queueResources(view View, scriptName string) ([]loadEvent, *script.Metadata
 		missing = append(missing, err)
 	}
 
+	// search for clones first so we can populate the cache
+	for _, v := range Script.Elements {
+		if v.Name == "clone" {
+			Clones[v.Action] = v.Mood
+		}
+	}
+
 	loads = append(loads, loadEvent{Key: "all", Category: "name"})
-	for _, v := range Script.Elements() {
+	for _, v := range Script.Elements {
 		switch v.Name {
 		case "all":
 			if v.Action != "emote" && v.Action != "_" {
 				missing = append(missing, verifyAnimation(v.Action, metadata))
 			}
 			continue
-		case "defect", "delay", "none", "clear", "_", "font", "fade":
+		case "clone", "defect", "delay", "none", "clear", "_", "font", "fade":
+			// special action tags don't need to be loaded
 			continue
 		case "bgm":
 			switch v.Mood {
@@ -323,17 +381,14 @@ func queueResources(view View, scriptName string) ([]loadEvent, *script.Metadata
 		// check to see if the action is an emote
 		switch v.Mood {
 		case "fade", "full", "silhouette", "rename", "defect":
-			break
 		case "emote": // load the emote if it isn't already
 			loads = append(loads, loadEvent{Key: v.Action, Category: "emote"})
-			break
 		case "animation", "_":
 			if v.Action != "_" {
 				missing = append(missing, verifyAnimation(v.Action, metadata))
 			}
-			break
 		default: // if it's not an emote, then load the texture onto the actor as an expression
-			loads = append(loads, loadEvent{Object: v.Name, Key: spriteKey(v), Category: "actor"})
+			loads = append(loads, loadEvent{Object: v.Name, Key: v.Mood, Category: "actor"})
 			if v.Action != "_" {
 				missing = append(missing, verifyAnimation(v.Action, metadata))
 			}
@@ -402,6 +457,7 @@ func releaseResources() {
 
 	charSprite = make(map[string]*Actor)
 	Actors = make(map[string]*Actor)
+	Clones = make(map[string]string)
 	ActorAnimations = make(map[string]script.AnimationMetadata)
 	Backgrounds = make(map[string]*hud.Sprite)
 	Emotes = make(map[string]*hud.AnimatedSprite)
@@ -413,9 +469,6 @@ func releaseResources() {
 		Fonts = make(map[string]*v41.Font)
 	}
 	dialogueIndex = -1
-	// CurrentBG = ""
-	// currentBGM = nil
-	// CurrentFontSize = 0.85
 }
 
 func shutdown() {
@@ -456,6 +509,8 @@ func loadGame(view View, scriptName string) {
 	}()
 }
 
+var replyStart, replyEnd *hud.Animation
+
 func runGame(CurrentViewConfig View, scriptName string) {
 	var xCode int
 
@@ -469,7 +524,7 @@ func runGame(CurrentViewConfig View, scriptName string) {
 	signal.Notify(sigc, syscall.SIGTERM, syscall.SIGINT)
 
 	ft := time.Tick(time.Second)
-	killswitch := make(chan int, 0)
+	killswitch := make(chan int)
 	shaderProgram = gfx.MustInitShader()
 
 	// Catch any panics
@@ -500,8 +555,21 @@ func runGame(CurrentViewConfig View, scriptName string) {
 	spinner.SetScale(0.3)
 	spinner.AnimateForever()
 
+	// replyStart = hud.NewAnimation("reply_start", hud.NewAnimatedSpriteFromFile("./resources/ui/reply_start.gif"))
+	// replyStart.SetPositionf(0, 0, 0)
+	// replyStart.SetScale(1)
+	// replyStart.AnimateForever()
+
+	// replyEnd = hud.NewAnimation("reply_end", hud.NewAnimatedSpriteFromFile("./resources/ui/reply_end.gif"))
+	// replyEnd.SetPositionf(0, 0, 0)
+	// replyEnd.SetScale(1)
+	// replyEnd.AnimateForever()
+
 	gl.ClearColor(0.4, 0.4, 0.4, 0.0)
 	gl.BlendColor(1, 1, 1, 1)
+
+	// get 2D projection matrix for the aspect ratio
+	var screenProjMatrix hud.Mat4 = hud.ProjMatrix(float32(CurrentViewConfig.WindowWidth), float32(CurrentViewConfig.WindowHeight))
 
 	var delay time.Timer
 	var debugText *hud.Text
@@ -572,9 +640,12 @@ F:
 				}
 			}
 
+			// if replyEnd != nil {
+			// 	replyEnd.Draw(replyEnd.GetPosition(), shaderProgram)
+			// }
 			if LOADING {
 				DrawSprite(logo, hud.NewMat4(), shaderProgram) // dialogue window
-				spinner.Draw(spinner.GetPosition(), shaderProgram)
+				spinner.Draw(screenProjMatrix, spinner.GetPosition(), shaderProgram)
 				if debugText != nil {
 					DrawText(CurrentViewConfig, debugText, 0, 0)
 				}
@@ -605,8 +676,8 @@ F:
 			// draw image
 
 			drawBackgrounds()
-			drawActors()
-			drawUI(CurrentViewConfig)
+			drawActors(screenProjMatrix)
+			drawUI(CurrentViewConfig, screenProjMatrix)
 			drawText(CurrentViewConfig)
 			if debugText != nil {
 				DrawText(CurrentViewConfig, debugText, 0, 0)
@@ -642,7 +713,7 @@ func drawBackgrounds() {
 		DrawSprite(bg, hud.NewMat4(), shaderProgram) // background
 	}
 }
-func drawActors() {
+func drawActors(proj hud.Mat4) {
 	// if sprite, ok := charSprite["akira"]; ok {
 	// 	// DrawSprite(sprite.Sprite, hud.NewMat4(), shaderProgram)
 	// 	sprite.Draw(shaderProgram)
@@ -676,22 +747,31 @@ func drawActors() {
 			}
 
 			// draw the actor
-			actor.Draw(shaderProgram)
+			actor.Draw(shaderProgram, proj)
 		}
 	}
 }
-func drawUI(view View) {
+func drawUI(view View, proj hud.Mat4) {
 	// Draw text
 	if dialogue != nil {
 		DrawSprite(Sprites[spriteDialogueOverlay], hud.NewMat4(), shaderProgram) // dialogue window
 		DrawSprite(Sprites[spriteDialogueBar], hud.NewMat4(), shaderProgram)     // dialogue bar overlay
 	}
-	if len(reply) == 1 {
-		DrawSprite(Sprites[spriteReplySingle], hud.NewMat4(), shaderProgram)
-	} else if len(reply) == 2 {
-		DrawSprite(Sprites[spriteReplyDoubleA], hud.NewMat4(), shaderProgram)
-		DrawSprite(Sprites[spriteReplyDoubleB], hud.NewMat4(), shaderProgram)
+
+	// draw all reply buttons
+	for _, v := range reply {
+		if !v.Active {
+			continue
+		}
+		if v.start.IsAnimating() {
+			v.start.Draw(proj, v.start.GetPosition(), shaderProgram)
+		} else if v.end.IsAnimating() {
+			v.end.Draw(proj, v.end.GetPosition(), shaderProgram)
+		} else {
+			DrawSprite(v.Sprite, hud.NewMat4(), shaderProgram)
+		}
 	}
+
 	if AUTO {
 		DrawSprite(Sprites[spriteAutoOn], hud.NewMat4(), shaderProgram)
 	} else {
@@ -699,7 +779,7 @@ func drawUI(view View) {
 	}
 	DrawSprite(Sprites[spriteMenuButton], hud.NewMat4(), shaderProgram)
 	if DEBUG {
-		Sprites[spriteEmoteBalloon].Draw(Sprites[spriteEmoteBalloon].GetTransform(), shaderProgram)
+		Sprites[spriteEmoteBalloon].Draw(Sprites[spriteEmoteBalloon].GetTransform(proj), shaderProgram)
 	}
 }
 func drawText(view View) {
@@ -713,11 +793,11 @@ func drawText(view View) {
 			}
 		}
 	}
-	if len(reply) == 1 {
-		DrawText(view, reply[0], (float32(view.WindowWidth)/2)-(reply[0].Width()/2)+25, 285)
-	} else if len(reply) == 2 {
-		DrawText(view, reply[0], (float32(view.WindowWidth)/2)-(reply[0].Width()/2)+25, 240)
-		DrawText(view, reply[1], (float32(view.WindowWidth)/2)-(reply[1].Width()/2)+25, 330)
+	// draw reply text
+	for _, v := range reply {
+		if v.Active {
+			DrawText(view, v.Text, v.Position.X(), v.Position.Y())
+		}
 	}
 	if DEBUG {
 		var text []string
@@ -728,7 +808,7 @@ func drawText(view View) {
 			emoteOffset := p.Sub(Sprites[spriteEmoteBalloon].GetPosition())
 			text = append(text, fmt.Sprintf("position: (%f, %f)", p.X(), p.Y()))
 			text = append(text, fmt.Sprintf("scale: (%f)", sprite.GetScale()))
-			text = append(text, fmt.Sprintf("emote offset from %s: (%f, %f)", CurrentSpeaker, emoteOffset.X(), emoteOffset.Y()))
+			text = append(text, fmt.Sprintf("emote: (%f, %f)", emoteOffset.X(), emoteOffset.Y()))
 		}
 		pos := hud.NewSolidText(strings.Join(text, "\n"), hud.COLOR_WHITE, Fonts[fontRegular])
 		pos.SetScale(2)
@@ -782,6 +862,7 @@ func keyCallback(window *glfw.Window, key glfw.Key, scancode int, action glfw.Ac
 		return
 	}
 
+	// activeChar := replyEnd.GetSprite()
 	activeChar := s.Sprite
 	if key == glfw.KeyLeft {
 		moveActor(activeChar, -0.01, 0)
@@ -823,9 +904,53 @@ func mouseButtonCallback(w *glfw.Window, button glfw.MouseButton, action glfw.Ac
 
 	// log.Printf("mouseButtonCallback: button(%v), action(%v)\n", button, action)
 	cursorX, cursorY := glfw.GetCurrentContext().GetCursorPos()
-	// fmt.Printf("cursor pos: (%f %f)\n", cursorX, cursorY)
-
+	fmt.Printf("cursor pos: (%f %f)\n", cursorX, cursorY)
 	if action == glfw.Release {
+		if len(reply) > 0 {
+			if len(reply) == 1 {
+				fmt.Println("checking single reply bounds:", rectReplySingle)
+				if inside(rectReplySingle, int(cursorX), int(cursorY)) {
+					fmt.Println("reply hit")
+					if s, ok := Sounds["touch"]; ok {
+						s.Play(CurrentSfxVolume)
+					}
+
+					reply[0].end.Animate(func() {
+						fmt.Println("reply animation ended")
+						delayConfirmation(&status, time.Second)
+						reply[0].Active = false
+					})
+					return
+				} else {
+					fmt.Println("option button not hit:", cursorX, cursorY)
+				}
+			} else if len(reply) == 2 {
+				fmt.Println("checking double reply bounds")
+				if inside(rectReplyDoubleA, int(cursorX), int(cursorY)) {
+					fmt.Println("reply a hit")
+					if s, ok := Sounds["touch"]; ok {
+						s.Play(CurrentSfxVolume)
+					}
+					reply[0].end.Animate(func() {
+						delayConfirmation(&status, time.Second)
+						reply[0].Active = false
+					})
+					return
+				} else if inside(rectReplyDoubleB, int(cursorX), int(cursorY)) {
+					fmt.Println("reply b hit")
+					if s, ok := Sounds["touch"]; ok {
+						s.Play(CurrentSfxVolume)
+					}
+					reply[1].end.Animate(func() {
+						delayConfirmation(&status, time.Second)
+						reply[1].Active = false
+					})
+					return
+				}
+			}
+			return
+		}
+
 		autoRect := image.Rectangle{Min: image.Point{X: 1020, Y: 20}, Max: image.Point{X: 1130, Y: 60}}
 		menuRect := image.Rectangle{Min: image.Point{X: 1150, Y: 20}, Max: image.Point{X: 1260, Y: 60}}
 		if inside(autoRect, int(cursorX), int(cursorY)) {
@@ -846,6 +971,7 @@ func queueEvent(event eventFunc) {
 }
 func nextDialogue(status *chan uint32) {
 	if LOADING || WAITING_CONFIRMATION {
+		fmt.Println("waiting confirmation:", WAITING_CONFIRMATION)
 		return
 	}
 
@@ -853,7 +979,7 @@ func nextDialogue(status *chan uint32) {
 	releaseReplies()
 
 	dialogueIndex++
-	if len(Script.Elements()) <= dialogueIndex {
+	if len(Script.Elements) <= dialogueIndex {
 		// *status <- 0
 		return
 	}
@@ -870,8 +996,10 @@ func nextDialogue(status *chan uint32) {
 		}
 
 		fmt.Println("delaying by:", f)
+		// <-time.NewTimer(time.Duration(f) * time.Second).C
+		// fmt.Println("delay ended")
+		// nextDialogue(status)
 		delayNextDialogue(status, time.Duration(f)*time.Second)
-		break
 	case "defect":
 		name := strings.ToLower(element.Mood)
 		if _, ok := Factions[name]; ok {
@@ -879,26 +1007,21 @@ func nextDialogue(status *chan uint32) {
 			Factions[name].SetScale(0.8)
 		}
 		nextDialogue(status)
-		break
 	case "clear":
 		clear()
 		nextDialogue(status)
-		break
 	case "bg":
 		CurrentBG = element.Mood
 		nextDialogue(status)
-		break
 	case "sfx":
 		if s, ok := Sounds[element.Mood]; ok {
 			fmt.Println("playing sfx:", element.Mood)
 			s.Play(CurrentSfxVolume)
 			nextDialogue(status)
 		}
-		break
 	case "bgm":
 		prepareBgm(element, status)
 		nextDialogue(status)
-		break
 	case "fade":
 		if element.Mood == "white" {
 			fade.SetActiveTexture("white")
@@ -910,7 +1033,6 @@ func nextDialogue(status *chan uint32) {
 		AsyncSpriteAlpha(fade, status, element.Action != "in", func() {
 			*status <- 2
 		})
-		break
 	case "font":
 		switch element.Mood {
 		case "size":
@@ -925,21 +1047,17 @@ func nextDialogue(status *chan uint32) {
 			}
 		}
 		nextDialogue(status)
-		break
 	case "sensei":
 		// 2E4152
-		for _, v := range element.Lines {
-			reply = append(reply, hud.NewSolidText(v, mgl32.Vec3{0.18, 0.255, 0.322}, Fonts[fontRegular]))
+		for i, v := range element.Lines {
+			reply = append(reply, createReply(v, i, len(element.Lines)))
 		}
 		WAITING_CONFIRMATION = true
-		break
 	case "none":
 		releaseDialogue()
 		nextDialogue(status)
-		break
 	default:
 		prepareActor(status, element)
-		break
 	}
 }
 
@@ -1000,7 +1118,7 @@ func prepareActor(status *chan uint32, element script.ScriptElement) {
 	shouldChangeSprite, isAnimated := prepareActorAnimation(status, &element, Actors[element.Name], !element.HasDialogue())
 
 	if shouldChangeSprite {
-		err := charSprite[element.Name].SetActiveTexture(spriteKey(element))
+		err := charSprite[element.Name].SetActiveTexture(element.Mood)
 		if err != nil {
 			fmt.Println("error loading sprite: ", err.Error())
 			DebugChannel <- fmt.Sprintf("actor (%s) is missing sprite (%s)", element.Name, element.Mood)
@@ -1016,6 +1134,7 @@ func prepareActor(status *chan uint32, element script.ScriptElement) {
 
 func delayNextDialogue(status *chan uint32, duration time.Duration) {
 	go func() {
+		// WAITING_CONFIRMATION = true
 		<-time.NewTimer(duration).C
 		*status <- 2 // send status update to listening channel
 	}()
@@ -1023,6 +1142,13 @@ func delayNextDialogue(status *chan uint32, duration time.Duration) {
 
 func sendConfirmation(status *chan uint32) {
 	go func() {
+		*status <- 3 // send status update to listening channel
+	}()
+}
+
+func delayConfirmation(status *chan uint32, duration time.Duration) {
+	go func() {
+		<-time.NewTimer(duration).C
 		*status <- 3 // send status update to listening channel
 	}()
 }
@@ -1106,8 +1232,18 @@ func prepareActorAnimation(status *chan uint32, element *script.ScriptElement, a
 		// move the actor if the action set the position
 		if anim, ok := ActorAnimations[actionName]; ok {
 			// fmt.Println("starting animation:", anim.Name)
+			WAITING_CONFIRMATION = anim.Speed < 1
 			go AsyncAnimateActor(actor, anim, status, func() {
-				delayNextDialogue(status, time.Millisecond)
+				// if anim.Speed == 1 {
+				// nextDialogue(status)
+				// } else {
+				// sendConfirmation(status)
+				// }
+				fmt.Println("============= ANIMATION ENDED")
+				WAITING_CONFIRMATION = false
+				if anim.Speed >= 1 {
+					sendConfirmation(status)
+				}
 			})
 		}
 		if action == "animation" || action == "_" {
@@ -1118,7 +1254,6 @@ func prepareActorAnimation(status *chan uint32, element *script.ScriptElement, a
 			actor.SetColorf(0, 0, 0)
 			return false, false
 		}
-		break
 	}
 
 	return true, false
@@ -1136,17 +1271,14 @@ func prepareBgm(element script.ScriptElement, status *chan uint32) {
 		if currentBGM != nil {
 			currentBGM.Resume()
 		}
-		break
 	case "pause":
 		if currentBGM != nil {
 			currentBGM.Pause()
 		}
-		break
 	case "fade":
 		if currentBGM != nil {
 			AsyncStreamerVolume(currentBGM, bgmActionName == "in")
 		}
-		break
 	default:
 		if s, ok := Sounds[bgmAction]; ok {
 			fmt.Println("playing bgm:", bgmAction)
@@ -1286,41 +1418,56 @@ func AsyncSpriteAlpha(s *hud.Sprite, status *chan uint32, in bool, done func()) 
 	loop.Start()
 }
 
+func frameToTargetPosition(frame script.FrameMetadata, center, startingPosition, originalPosition hud.Vec3, originalScale float32) (hud.Vec3, float32) {
+	var targetPosition hud.Vec3
+	targetScale := originalScale
+	if frame.Reset {
+		targetPosition = originalPosition
+	} else if frame.Center {
+		targetPosition = center
+		targetScale = center.Z()
+	} else {
+		targetPosition = startingPosition
+		if frame.Scale != nil {
+			targetScale = *frame.Scale
+		}
+		if frame.X != nil {
+			targetPosition[0] = *frame.X
+		}
+		if frame.AddX != nil {
+			targetPosition[0] += *frame.AddX
+		}
+		if frame.Y != nil {
+			targetPosition[1] = *frame.Y
+		}
+		if frame.AddY != nil {
+			targetPosition[1] += *frame.AddY
+		}
+	}
+
+	return targetPosition, targetScale
+}
+
 func AsyncAnimateActor(s *Actor, anim script.AnimationMetadata, status *chan uint32, done func()) {
 	originalPosition := s.GetPosition()
 	originalScale := s.GetScale()
 	// fmt.Println("original position:", originalPosition)
 	speed := anim.Speed
 
+	if speed == 1 {
+		targetPosition, targetScale := frameToTargetPosition(anim.Frames[0], s.GetCenter(), originalPosition, originalPosition, originalScale)
+		s.SetPosition(targetPosition)
+		s.SetScale(targetScale)
+		if done != nil {
+			done()
+		}
+		return
+	}
+
 	ticker := time.Tick(FRAME_DURATION)
 	for _, frame := range anim.Frames {
 		startingPosition := s.GetPosition()
-		var targetPosition hud.Vec3
-		targetScale := originalScale
-		if frame.Reset {
-			targetPosition = originalPosition
-		} else if frame.Center {
-			center := s.GetCenter()
-			targetPosition = center
-			targetScale = center.Z()
-		} else {
-			targetPosition = startingPosition
-			if frame.Scale != nil {
-				targetScale = *frame.Scale
-			}
-			if frame.X != nil {
-				targetPosition[0] = *frame.X
-			}
-			if frame.AddX != nil {
-				targetPosition[0] += *frame.AddX
-			}
-			if frame.Y != nil {
-				targetPosition[1] = *frame.Y
-			}
-			if frame.AddY != nil {
-				targetPosition[1] += *frame.AddY
-			}
-		}
+		targetPosition, targetScale := frameToTargetPosition(frame, s.GetCenter(), startingPosition, originalPosition, originalScale)
 
 		// fmt.Println("animation frame:", ind, "playing animation:", anim.Name, ", position:", s.GetPosition(), "to:", targetPosition)
 
@@ -1341,7 +1488,6 @@ func AsyncAnimateActor(s *Actor, anim script.AnimationMetadata, status *chan uin
 				// fmt.Println("position:", pos, "new position:", newPos, "diff:", targetPosition.Sub(pos), "move:", move)
 				// s.Translate(s.GetPosition().X()-0.1, 0, 0)
 				// fmt.Println("translated X:", s.GetPosition().X())
-				break
 			}
 		}
 
@@ -1360,12 +1506,27 @@ func AsyncAnimateActor(s *Actor, anim script.AnimationMetadata, status *chan uin
 	// loop.Start()
 }
 
+func AsyncAnimateReply(s *hud.Sprite, status *chan uint32, done func()) {
+	// var originalScale float32 = 1.0
+	var targetScale float32 = 1.25
+	var speed float32 = 0.01
+
+	ticker := time.Tick(FRAME_DURATION)
+	for s.GetScale() < targetScale {
+		select {
+		case <-ticker:
+			fmt.Println("reply scale:", s.GetScale())
+			s.SetScale(s.GetScale() + speed)
+		}
+	}
+
+	if done != nil {
+		done()
+	}
+}
+
 /////////////////////////////////////////////
 // HELPER FUNCTIONS
-
-func spriteKey(e script.ScriptElement) string {
-	return fmt.Sprintf("%v-%v", e.Name, e.Mood)
-}
 
 func clear() {
 	charSprite = nil
@@ -1410,7 +1571,7 @@ func releaseReplies() {
 		v.Release()
 		v = nil
 	}
-	reply = make([]*hud.Text, 0)
+	reply = make([]*Reply, 0)
 }
 
 func releaseDialogue() {
@@ -1474,4 +1635,45 @@ func SaveImage(rgba image.Image, filename string) error {
 
 	png.Encode(out, rgba)
 	return nil
+}
+
+func createReply(text string, index, total int) *Reply {
+
+	var textPosition hud.Vec2
+	var yOffset float32
+	var sprite *hud.Sprite
+
+	txtObj := hud.NewSolidText(text, mgl32.Vec3{0.18, 0.255, 0.322}, Fonts[fontRegular])
+	switch total {
+	case 1:
+		sprite = Sprites[spriteReplySingle]
+		yOffset = 0.15
+		textPosition = hud.Vec2{(float32(1280/2) - (txtObj.Width() / 2) + 25), 285}
+	case 2:
+		if index == 0 {
+			sprite = Sprites[spriteReplyDoubleA]
+			yOffset = 0.27
+			textPosition = hud.Vec2{(float32(1280/2) - (txtObj.Width() / 2) + 25), 240}
+		} else {
+			sprite = Sprites[spriteReplyDoubleB]
+			yOffset = 0.03
+			textPosition = hud.Vec2{(float32(1280/2) - (txtObj.Width() / 2) + 25), 330}
+		}
+	}
+
+	startAnim := hud.NewAnimation("reply_start", hud.NewAnimatedSpriteFromFile("./resources/ui/reply_start_v3.gif"))
+	startAnim.SetPositionf(0, yOffset, 0)
+	startAnim.Animate(func() {})
+
+	endAnim := hud.NewAnimation("reply_end", hud.NewAnimatedSpriteFromFile("./resources/ui/reply_end_v3.gif"))
+	endAnim.SetPositionf(0, yOffset, 0)
+
+	return &Reply{
+		Position: textPosition,
+		Active:   true,
+		Sprite:   sprite,
+		Text:     txtObj,
+		start:    startAnim,
+		end:      endAnim,
+	}
 }
