@@ -245,7 +245,11 @@ func loadResource(load loadEvent) error {
 		}
 	case "sfx":
 		if _, ok := Sounds[key]; !ok {
-			Sounds[key], err = sfx.NewStreamer(fmt.Sprintf("./resources/%s/%s.mp3", category, key))
+			s, err := sfx.NewStreamer(fmt.Sprintf("./resources/%s/%s.mp3", category, key))
+			if err != nil {
+				return err
+			}
+			Sounds[key] = s
 		}
 	case "emote": // load the emote if it isn't already
 		if _, ok := Emotes[key]; !ok {
@@ -1676,4 +1680,11 @@ func createReply(text string, index, total int) *Reply {
 		start:    startAnim,
 		end:      endAnim,
 	}
+}
+
+func FileExists(path string) bool {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return false
+	}
+	return true
 }
